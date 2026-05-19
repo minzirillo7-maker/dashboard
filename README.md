@@ -723,6 +723,4 @@ setInterval(loadData, 60000);
 </script>
 </body>
 </html>
-HTMLEOF
-echo "OK"
-Salida
+

@@ -182,7 +182,6 @@
     <script>
         function dashboard() {
             return {
-                // URL integrada directamente por defecto
                 sheetUrl: 'https://script.google.com/macros/s/AKfycbwiJQnEG8DaPdTtXeP6vKKKB813pqGNul6LLXQnf6_-D1j4ESTPfcCm4p4Xf87fASn7aA/exec',
                 products: [],
                 categories: [],
@@ -197,7 +196,6 @@
                 metrics: { inventoryValue: 0, potentialProfit: 0, avgMargin: 0, totalStock: 0, outOfStock: 0, lowStock: 0 },
 
                 initApp() {
-                    // Si el usuario guardó una URL personalizada antes en LocalStorage la respetamos, si no usamos la tuya
                     this.sheetUrl = localStorage.getItem('vc_sheet_url') || this.sheetUrl;
                     this.fetchData();
                     setTimeout(() => lucide.createIcons(), 100);
@@ -215,16 +213,45 @@
                     try {
                         const response = await fetch(this.sheetUrl);
                         if (!response.ok) throw new Error("Error de red al consultar la API.");
-                        const data = await response.json();
+                        const resData = await response.json();
                         
-                        if (data.error) throw new Error(data.error);
+                        if (resData.status !== "ok") throw new Error(resData.message || "Error en origen");
                         
-                        this.products = Array.isArray(data) ? data : data.productos || [];
+                        // CAPA DE ADAPTACIÓN (Mapea el formato nativo de tu Sheets a la UI de forma segura)
+                        const rawProducts = resData.productos || [];
+                        let lastValidName = "";
+
+                        this.products = rawProducts.map(p => {
+                            // Limpiador estricto de dinero latino ("$24.990" -> 24990)
+                            const cleanNum = (val) => {
+                                if (!val) return 0;
+                                if (typeof val === 'number') return val;
+                                return Number(String(val).replace(/[^0-9]/g, '')) || 0;
+                            };
+
+                            // Evitar romper si "PRODUCTO" viene en blanco asumiendo repetición de fila anterior
+                            const currentName = String(p['PRODUCTO'] || '').trim();
+                            if (currentName !== "") lastValidName = currentName;
+
+                            return {
+                                id: Number(p['ID'] || 0),
+                                name: lastValidName || 'Sin Nombre',
+                                flavor: String(p['SABOR'] || '').trim() || 'Original',
+                                salePrice: cleanNum(p['PRECIO VENTA']),
+                                cost: cleanNum(p['COSTO']),
+                                stock: Number(p['STOCK ACTUAL'] || 0),
+                                status: String(p['ESTADO'] || '').toUpperCase().trim(),
+                                category: String(p['CATEGORÍA'] || p['CATEGORIA'] || 'General').trim(),
+                                imageUrl: String(p['IMAGEN_URL'] || ''),
+                                mpLink: String(p['mp_link'] || '')
+                            };
+                        });
+
                         this.extractCategories();
                         this.calculateMetrics();
                         this.renderCharts();
                     } catch (err) {
-                        this.error = `Error de sincronización: ${err.message}. Asegúrate de que el Apps Script esté implementado como "Cualquiera" (Anyone) con acceso de lectura.`;
+                        this.error = `Error de sincronización: ${err.message}. Verifica que el Apps Script esté publicado como web pública para 'Cualquiera'.`;
                     } finally {
                         this.loading = false;
                         setTimeout(() => lucide.createIcons(), 50);

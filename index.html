@@ -8,852 +8,973 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --w:#ffffff;--g50:#f7f8fa;--g100:#eef0f4;--g200:#dde1e9;--g300:#c4cad6;
+  --g400:#8f99ab;--g500:#5d6a7e;--g700:#2d3748;--g900:#111827;
+  --bl:#1a56db;--bl-lt:#e8f0fe;--bl-md:#3b82f6;
+  --gr:#0e7c3a;--gr-lt:#e6f4ec;--gr-md:#22c55e;
+  --am:#92530a;--am-lt:#fef3e2;--am-md:#f59e0b;
+  --rd:#b91c1c;--rd-lt:#fef2f2;--rd-md:#ef4444;
+  --te:#0891b2;--te-lt:#e0f2fe;
+  --pu:#6d28d9;--pu-lt:#ede9fe;
+  --bd:#dde1e9;
+  --font:'IBM Plex Sans',sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh2:0 4px 12px rgba(0,0,0,.08);
+}
+html,body{min-height:100vh;background:var(--g50);color:var(--g900);font-family:var(--font);font-size:13px;line-height:1.4}
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* LAYOUT */
+.app{display:flex;min-height:100vh}
+.sidebar{width:200px;background:var(--w);border-right:1px solid var(--bd);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
 
-:root {
-  --white:    #ffffff;
-  --gray-50:  #f7f8fa;
-  --gray-100: #eef0f4;
-  --gray-200: #dde1e9;
-  --gray-300: #c4cad6;
-  --gray-400: #8f99ab;
-  --gray-500: #5d6a7e;
-  --gray-700: #2d3748;
-  --gray-900: #111827;
-  --blue:     #1a56db;
-  --blue-lt:  #e8f0fe;
-  --blue-md:  #3b82f6;
-  --green:    #0e7c3a;
-  --green-lt: #e6f4ec;
-  --green-md: #22c55e;
-  --amber:    #92530a;
-  --amber-lt: #fef3e2;
-  --amber-md: #f59e0b;
-  --red:      #b91c1c;
-  --red-lt:   #fef2f2;
-  --red-md:   #ef4444;
-  --border:   #dde1e9;
-  --font:     'IBM Plex Sans', sans-serif;
-  --mono:     'IBM Plex Mono', monospace;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-  --shadow:    0 2px 8px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.05);
-}
+/* SIDEBAR */
+.sb-brand{display:flex;align-items:center;gap:9px;padding:14px;border-bottom:1px solid var(--bd)}
+.sb-icon{width:30px;height:30px;background:var(--bl);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;flex-shrink:0}
+.sb-name{font-size:14px;font-weight:600}
+.sb-sub{font-size:9px;color:var(--g400);font-family:var(--mono)}
+.sb-sec{padding:10px 0 2px}
+.sb-lbl{font-size:9px;font-weight:600;color:var(--g400);letter-spacing:.7px;text-transform:uppercase;padding:0 12px 4px}
+.sb-a{display:flex;align-items:center;gap:8px;padding:7px 12px;font-size:12px;color:var(--g500);cursor:pointer;border-left:3px solid transparent;transition:all .12s}
+.sb-a:hover{color:var(--g900);background:var(--g50)}
+.sb-a.on{color:var(--bl);background:var(--bl-lt);border-left-color:var(--bl);font-weight:500}
+.sb-a i{font-size:15px}
+.sb-ft{margin-top:auto;padding:12px;border-top:1px solid var(--bd)}
+.sync-row{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--g500)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--gr-md);animation:blink 2s infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-html, body {
-  min-height: 100vh;
-  background: var(--gray-50);
-  color: var(--gray-900);
-  font-family: var(--font);
-  font-size: 14px;
-  line-height: 1.5;
-}
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:var(--w);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:8px;box-shadow:var(--sh)}
+.topbar-title{font-size:14px;font-weight:600}
+.tb-r{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.search{display:flex;align-items:center;gap:6px;border:1px solid var(--bd);border-radius:5px;padding:5px 10px;background:var(--w)}
+.search input{border:none;outline:none;font-size:12px;font-family:var(--font);color:var(--g900);width:170px;background:transparent}
+.search input::placeholder{color:var(--g400)}
+.search i{color:var(--g400);font-size:14px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:5px;font-size:11px;font-weight:500;cursor:pointer;font-family:var(--font);border:1px solid var(--bd);background:var(--w);color:var(--g700);transition:all .12s;text-decoration:none;white-space:nowrap}
+.btn:hover{background:var(--g50);border-color:var(--g300)}
+.btn.primary{background:var(--bl);color:#fff;border-color:var(--bl)}
+.btn.primary:hover{background:#1648c0}
+.btn.success{background:var(--gr);color:#fff;border-color:var(--gr)}
+.btn.success:hover{background:#0a5c2a}
+select.btn{cursor:pointer}
 
-/* ── LAYOUT ─────────────────────────────── */
-.layout { display: flex; min-height: 100vh; }
+/* PAGE */
+.page{display:none;padding:18px 20px;flex:1}
+.page.active{display:block}
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.ph h1{font-size:16px;font-weight:600}
+.ph p{font-size:11px;color:var(--g400);font-family:var(--mono);margin-top:1px}
 
-.sidebar {
-  width: 224px;
-  background: var(--white);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow-y: auto;
-}
+/* ALERTS */
+.alert{display:flex;align-items:flex-start;gap:8px;border-radius:5px;padding:8px 12px;margin-bottom:7px;font-size:11.5px;line-height:1.5}
+.alert.danger{background:var(--rd-lt);border:1px solid #fca5a5;color:var(--rd)}
+.alert.warning{background:var(--am-lt);border:1px solid #fcd34d;color:var(--am)}
+.alert i{font-size:15px;flex-shrink:0;margin-top:1px}
 
-.main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:var(--w);border:1px solid var(--bd);border-radius:7px;padding:12px 14px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi.bl::before{background:var(--bl)}.kpi.gr::before{background:var(--gr-md)}
+.kpi.am::before{background:var(--am-md)}.kpi.rd::before{background:var(--rd-md)}
+.kpi.te::before{background:var(--te)}.kpi.pu::before{background:var(--pu)}
+.kpi-ic{width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:13px;margin-bottom:8px}
+.kpi-ic.bl{background:var(--bl-lt);color:var(--bl)}.kpi-ic.gr{background:var(--gr-lt);color:var(--gr)}
+.kpi-ic.am{background:var(--am-lt);color:var(--am)}.kpi-ic.rd{background:var(--rd-lt);color:var(--rd)}
+.kpi-ic.te{background:var(--te-lt);color:var(--te)}.kpi-ic.pu{background:var(--pu-lt);color:var(--pu)}
+.kpi-lbl{font-size:10px;color:var(--g400);font-family:var(--mono);margin-bottom:3px}
+.kpi-val{font-size:19px;font-weight:600;line-height:1.1}
+.kpi-sub{font-size:10px;color:var(--g400);margin-top:2px}
 
-/* ── SIDEBAR ────────────────────────────── */
-.sb-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 18px 16px;
-  border-bottom: 1px solid var(--border);
-}
-.sb-brand-icon {
-  width: 34px; height: 34px;
-  background: var(--blue);
-  border-radius: 7px;
-  display: flex; align-items: center; justify-content: center;
-  color: #fff; font-size: 17px; flex-shrink: 0;
-}
-.sb-brand-name { font-size: 15px; font-weight: 600; color: var(--gray-900); }
-.sb-brand-sub  { font-size: 10px; color: var(--gray-400); font-family: var(--mono); margin-top: 1px; }
+/* SECTION */
+.sec-t{font-size:11px;font-weight:600;color:var(--g500);letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--bd)}
 
-.sb-section { padding: 12px 0 4px; }
-.sb-section-label {
-  font-size: 10px; font-weight: 600; color: var(--gray-400);
-  letter-spacing: .8px; text-transform: uppercase;
-  padding: 0 16px 6px;
-}
-.sb-link {
-  display: flex; align-items: center; gap: 9px;
-  padding: 8px 16px;
-  font-size: 13px; color: var(--gray-500);
-  cursor: pointer; border-left: 3px solid transparent;
-  transition: all .12s;
-}
-.sb-link:hover { color: var(--gray-900); background: var(--gray-50); }
-.sb-link.active { color: var(--blue); background: var(--blue-lt); border-left-color: var(--blue); font-weight: 500; }
-.sb-link i { font-size: 16px; }
+/* CHARTS */
+.charts-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px}
+.charts-2{display:grid;grid-template-columns:1.4fr 1fr;gap:12px;margin-bottom:16px}
+.chart-box{background:var(--w);border:1px solid var(--bd);border-radius:7px;padding:14px 16px;box-shadow:var(--sh)}
+.chart-ttl{font-size:12px;font-weight:600;margin-bottom:1px}
+.chart-sub{font-size:10px;color:var(--g400);font-family:var(--mono);margin-bottom:10px}
+.leg{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px}
+.li{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--g500)}
+.ld{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
-.sb-footer {
-  margin-top: auto;
-  padding: 14px 16px;
-  border-top: 1px solid var(--border);
-}
-.sb-sync {
-  display: flex; align-items: center; gap: 7px;
-  font-size: 12px; color: var(--gray-500);
-}
-.sync-dot {
-  width: 7px; height: 7px; border-radius: 50%;
-  background: var(--green-md); flex-shrink: 0;
-  animation: pulse 2.5s infinite;
-}
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+/* TABLE */
+.tbl-card{background:var(--w);border:1px solid var(--bd);border-radius:7px;box-shadow:var(--sh);margin-bottom:16px;overflow:hidden}
+.tbl-tb{display:flex;align-items:center;gap:5px;padding:10px 14px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.tab{font-size:11px;padding:4px 10px;border-radius:4px;cursor:pointer;border:1px solid var(--bd);background:var(--w);color:var(--g500);font-family:var(--font);transition:all .12s}
+.tab:hover{border-color:var(--g300);color:var(--g700)}
+.tab.on{background:var(--bl-lt);color:var(--bl);border-color:#93c5fd;font-weight:500}
+.tbl-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:750px}
+thead tr{background:var(--g50);border-bottom:2px solid var(--bd)}
+thead th{font-size:10px;font-weight:600;color:var(--g500);font-family:var(--mono);text-align:left;padding:8px 12px;white-space:nowrap;cursor:pointer;user-select:none}
+thead th:hover{color:var(--g900)}
+thead th.asc::after{content:' ↑';color:var(--bl)}
+thead th.desc::after{content:' ↓';color:var(--bl)}
+tbody tr{border-bottom:1px solid var(--g100);transition:background .1s;cursor:pointer}
+tbody tr:hover{background:var(--g50)}
+tbody tr:last-child{border-bottom:none}
+td{padding:8px 12px;font-size:12px;vertical-align:middle}
+.pn{font-size:12px;font-weight:500;color:var(--g900)}
+.pf{font-size:10px;color:var(--g400);font-family:var(--mono)}
+.bdg{display:inline-flex;align-items:center;font-size:10px;padding:2px 7px;border-radius:3px;font-weight:500;font-family:var(--mono);white-space:nowrap}
+.bg-gr{background:var(--gr-lt);color:var(--gr)}.bg-am{background:var(--am-lt);color:var(--am)}
+.bg-rd{background:var(--rd-lt);color:var(--rd)}.bg-bl{background:var(--bl-lt);color:var(--bl)}
+.bg-pu{background:var(--pu-lt);color:var(--pu)}
+.mv{font-family:var(--mono);font-size:11px}
+.bw{display:flex;align-items:center;gap:6px}
+.bt{flex:1;height:4px;background:var(--g100);border-radius:3px;min-width:45px}
+.bf{height:100%;border-radius:3px}
+.img-t{width:34px;height:34px;border-radius:5px;border:1px solid var(--bd);object-fit:cover;display:block;background:var(--g100)}
+.img-p{width:34px;height:34px;border-radius:5px;border:1px solid var(--bd);background:var(--g100);display:flex;align-items:center;justify-content:center;color:var(--g300);font-size:14px}
 
-/* ── TOPBAR ─────────────────────────────── */
-.topbar {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 24px;
-  background: var(--white);
-  border-bottom: 1px solid var(--border);
-  position: sticky; top: 0; z-index: 100;
-  flex-wrap: wrap; gap: 10px;
-  box-shadow: var(--shadow-sm);
-}
-.topbar-title { font-size: 16px; font-weight: 600; color: var(--gray-900); }
-.topbar-right  { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+/* BOTTOM */
+.bot-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.rank-box{background:var(--w);border:1px solid var(--bd);border-radius:7px;padding:14px;box-shadow:var(--sh)}
+.rr{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--g100)}
+.rr:last-child{border-bottom:none}
+.rn{font-size:10px;color:var(--g400);font-family:var(--mono);width:14px;flex-shrink:0}
+.ri{flex:1;min-width:0}
+.rnm{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rh{font-size:10px;color:var(--g400);font-family:var(--mono);margin-top:1px}
+.rv{font-size:11px;font-weight:600;font-family:var(--mono);flex-shrink:0}
 
-.search {
-  display: flex; align-items: center; gap: 7px;
-  border: 1px solid var(--border);
-  border-radius: 6px; padding: 6px 11px;
-  background: var(--white);
-}
-.search input {
-  border: none; outline: none;
-  font-size: 13px; font-family: var(--font);
-  color: var(--gray-900); width: 190px;
-  background: transparent;
-}
-.search input::placeholder { color: var(--gray-400); }
-.search i { color: var(--gray-400); font-size: 15px; }
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:var(--w);border-radius:10px;padding:22px 24px;width:100%;max-width:540px;box-shadow:var(--sh2);max-height:90vh;overflow-y:auto}
+.modal h2{font-size:15px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.modal-close{margin-left:auto;cursor:pointer;color:var(--g400);font-size:18px;background:none;border:none;line-height:1}
+.modal-close:hover{color:var(--g900)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.form-group{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.form-group label{font-size:11px;font-weight:500;color:var(--g500)}
+.form-group input,.form-group select{padding:7px 10px;border:1px solid var(--bd);border-radius:5px;font-size:12px;font-family:var(--font);color:var(--g900);background:var(--w);outline:none;transition:border .12s}
+.form-group input:focus,.form-group select:focus{border-color:var(--bl)}
+.calc-result{background:var(--g50);border:1px solid var(--bd);border-radius:6px;padding:12px 14px;margin-top:10px}
+.calc-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:12px}
+.calc-row.highlight{font-weight:600;color:var(--bl);border-top:1px solid var(--bd);margin-top:4px;padding-top:8px}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.compare-col{background:var(--g50);border:1px solid var(--bd);border-radius:6px;padding:12px}
+.compare-col h3{font-size:12px;font-weight:600;margin-bottom:8px;color:var(--g700)}
+.compare-field{display:flex;justify-content:space-between;padding:4px 0;font-size:11px;border-bottom:1px solid var(--g100)}
+.compare-field:last-child{border-bottom:none}
+.compare-field span:first-child{color:var(--g500)}
+.compare-field span:last-child{font-family:var(--mono);font-weight:500}
+.winner{color:var(--gr)!important}
 
-.btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 7px 13px; border-radius: 6px;
-  font-size: 12px; font-weight: 500;
-  cursor: pointer; font-family: var(--font);
-  border: 1px solid var(--border);
-  background: var(--white); color: var(--gray-700);
-  transition: all .12s; text-decoration: none;
-}
-.btn:hover { background: var(--gray-50); border-color: var(--gray-300); }
-.btn.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
-.btn.primary:hover { background: #1648c0; }
-select.btn { cursor: pointer; }
+/* LOADING */
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:12px}
+.spin{width:28px;height:28px;border:2px solid var(--g200);border-top-color:var(--bl);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.err-box{margin:20px;background:var(--rd-lt);border:1px solid #fca5a5;border-radius:7px;padding:16px 18px}
+.err-box strong{color:var(--rd);font-size:13px}
+.err-box p{font-size:11px;color:var(--g700);margin-top:6px;line-height:1.6}
 
-/* ── CONTENT ────────────────────────────── */
-.content { padding: 24px; flex: 1; }
+/* STATS PAGE */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.stat-box{background:var(--w);border:1px solid var(--bd);border-radius:7px;padding:14px;box-shadow:var(--sh)}
 
-.page-header {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
-}
-.page-header h1 { font-size: 18px; font-weight: 600; color: var(--gray-900); }
-.page-header p  { font-size: 12px; color: var(--gray-400); font-family: var(--mono); margin-top: 2px; }
+/* INV PAGE */
+.inv-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
 
-/* ── ALERTS ─────────────────────────────── */
-.alert {
-  display: flex; align-items: flex-start; gap: 10px;
-  border-radius: 6px; padding: 10px 14px;
-  margin-bottom: 8px; font-size: 12.5px; line-height: 1.5;
-}
-.alert.danger { background: var(--red-lt); border: 1px solid #fca5a5; color: var(--red); }
-.alert.warning { background: var(--amber-lt); border: 1px solid #fcd34d; color: var(--amber); }
-.alert i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-
-/* ── KPI CARDS ──────────────────────────── */
-.kpi-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
-  gap: 12px; margin-bottom: 22px;
-}
-.kpi-card {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px;
-  box-shadow: var(--shadow-sm);
-  position: relative;
-  overflow: hidden;
-}
-.kpi-card::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 3px;
-}
-.kpi-card.blue::before  { background: var(--blue); }
-.kpi-card.green::before { background: var(--green-md); }
-.kpi-card.amber::before { background: var(--amber-md); }
-.kpi-card.red::before   { background: var(--red-md); }
-.kpi-card.teal::before  { background: #0891b2; }
-
-.kpi-icon {
-  width: 32px; height: 32px; border-radius: 7px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; margin-bottom: 10px;
-}
-.kpi-icon.blue  { background: var(--blue-lt); color: var(--blue); }
-.kpi-icon.green { background: var(--green-lt); color: var(--green); }
-.kpi-icon.amber { background: var(--amber-lt); color: var(--amber); }
-.kpi-icon.red   { background: var(--red-lt); color: var(--red); }
-.kpi-icon.teal  { background: #e0f2fe; color: #0891b2; }
-
-.kpi-label { font-size: 11px; color: var(--gray-400); font-family: var(--mono); margin-bottom: 4px; letter-spacing: .2px; }
-.kpi-value { font-size: 22px; font-weight: 600; color: var(--gray-900); line-height: 1.1; }
-.kpi-sub   { font-size: 11px; color: var(--gray-400); margin-top: 3px; }
-
-/* ── SECTION TITLE ──────────────────────── */
-.sec-title {
-  font-size: 12px; font-weight: 600;
-  color: var(--gray-500); letter-spacing: .5px;
-  text-transform: uppercase; margin-bottom: 12px;
-  padding-bottom: 8px; border-bottom: 1px solid var(--border);
-}
-
-/* ── CHARTS ROW ─────────────────────────── */
-.charts-grid {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  gap: 16px; margin-bottom: 22px;
-}
-.chart-panel {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 8px; padding: 18px 20px;
-  box-shadow: var(--shadow-sm);
-}
-.chart-panel-title { font-size: 13px; font-weight: 600; color: var(--gray-900); margin-bottom: 2px; }
-.chart-panel-sub   { font-size: 11px; color: var(--gray-400); font-family: var(--mono); margin-bottom: 14px; }
-.legend-row { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 10px; }
-.leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--gray-500); }
-.leg-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-
-/* ── TABLE ──────────────────────────────── */
-.table-panel {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: var(--shadow-sm);
-  margin-bottom: 22px;
-  overflow: hidden;
-}
-.table-toolbar {
-  display: flex; align-items: center; gap: 6px;
-  padding: 12px 16px; border-bottom: 1px solid var(--border);
-  flex-wrap: wrap;
-}
-.tab-btn {
-  font-size: 12px; padding: 5px 11px;
-  border-radius: 5px; cursor: pointer;
-  border: 1px solid var(--border);
-  background: var(--white); color: var(--gray-500);
-  font-family: var(--font); transition: all .12s;
-}
-.tab-btn:hover { border-color: var(--gray-300); color: var(--gray-700); }
-.tab-btn.on { background: var(--blue-lt); color: var(--blue); border-color: #93c5fd; font-weight: 500; }
-
-.tbl-scroll { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; min-width: 800px; }
-thead tr { background: var(--gray-50); border-bottom: 2px solid var(--border); }
-thead th {
-  font-size: 11px; font-weight: 600; color: var(--gray-500);
-  font-family: var(--mono); letter-spacing: .3px;
-  text-align: left; padding: 10px 14px;
-  white-space: nowrap; cursor: pointer; user-select: none;
-}
-thead th:hover { color: var(--gray-900); }
-thead th.asc::after  { content: ' ↑'; color: var(--blue); }
-thead th.desc::after { content: ' ↓'; color: var(--blue); }
-tbody tr { border-bottom: 1px solid var(--gray-100); transition: background .1s; cursor: pointer; }
-tbody tr:hover { background: var(--gray-50); }
-tbody tr:last-child { border-bottom: none; }
-td { padding: 10px 14px; font-size: 12.5px; vertical-align: middle; }
-.prod-name   { font-size: 13px; font-weight: 500; color: var(--gray-900); }
-.prod-flavor { font-size: 11px; color: var(--gray-400); font-family: var(--mono); margin-top: 1px; }
-
-.badge {
-  display: inline-flex; align-items: center;
-  font-size: 10.5px; padding: 2px 8px;
-  border-radius: 4px; font-weight: 500;
-  font-family: var(--mono); white-space: nowrap;
-}
-.bg-green  { background: var(--green-lt); color: var(--green); }
-.bg-amber  { background: var(--amber-lt); color: var(--amber); }
-.bg-red    { background: var(--red-lt); color: var(--red); }
-.bg-blue   { background: var(--blue-lt); color: var(--blue); }
-
-.mono-val { font-family: var(--mono); font-size: 12px; }
-.bar-wrap  { display: flex; align-items: center; gap: 8px; }
-.bar-track { flex: 1; height: 4px; background: var(--gray-100); border-radius: 4px; min-width: 55px; }
-.bar-fill  { height: 100%; border-radius: 4px; }
-
-.img-th  {
-  width: 38px; height: 38px; border-radius: 6px;
-  border: 1px solid var(--border); object-fit: cover; display: block;
-  background: var(--gray-100);
-}
-.img-ph  {
-  width: 38px; height: 38px; border-radius: 6px;
-  border: 1px solid var(--border); background: var(--gray-100);
-  display: flex; align-items: center; justify-content: center;
-  color: var(--gray-300); font-size: 16px;
-}
-
-/* ── BOTTOM GRID ────────────────────────── */
-.bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-.rank-panel {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 8px; padding: 16px 18px;
-  box-shadow: var(--shadow-sm);
-}
-.rank-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 8px 0; border-bottom: 1px solid var(--gray-100);
-}
-.rank-row:last-child { border-bottom: none; }
-.rank-n  { font-size: 11px; color: var(--gray-400); font-family: var(--mono); width: 16px; flex-shrink: 0; }
-.rank-info { flex: 1; min-width: 0; }
-.rank-name { font-size: 12.5px; font-weight: 500; color: var(--gray-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rank-hint { font-size: 11px; color: var(--gray-400); font-family: var(--mono); margin-top: 1px; }
-.rank-val  { font-size: 12px; font-weight: 600; font-family: var(--mono); flex-shrink: 0; }
-
-/* ── LOADING / ERROR ────────────────────── */
-.loading-state {
-  display: flex; flex-direction: column; align-items: center;
-  justify-content: center; padding: 80px 20px; gap: 14px;
-}
-.spinner {
-  width: 32px; height: 32px;
-  border: 2px solid var(--gray-200); border-top-color: var(--blue);
-  border-radius: 50%; animation: spin .7s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.err-box {
-  margin: 24px;
-  background: var(--red-lt); border: 1px solid #fca5a5;
-  border-radius: 8px; padding: 18px 20px;
-}
-.err-box strong { color: var(--red); font-size: 14px; }
-.err-box p { font-size: 12px; color: var(--gray-700); margin-top: 7px; line-height: 1.6; }
-
-/* ── FOOTER ─────────────────────────────── */
-.footer {
-  text-align: center; padding: 14px;
-  font-size: 11px; color: var(--gray-400); font-family: var(--mono);
-  border-top: 1px solid var(--border); background: var(--white);
-}
-
-@media (max-width: 920px) {
-  .sidebar { display: none; }
-  .charts-grid { grid-template-columns: 1fr; }
-  .bottom-grid  { grid-template-columns: 1fr; }
-  .kpi-row { grid-template-columns: repeat(2, 1fr); }
-  .content { padding: 16px; }
+@media(max-width:900px){
+  .sidebar{display:none}
+  .charts-3,.charts-2,.bot-grid,.stats-grid{grid-template-columns:1fr}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .page{padding:12px}
+  .form-row{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
-<div class="layout">
+<div class="app">
 
-<!-- ══ SIDEBAR ══════════════════════════════════════ -->
+<!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sb-brand">
-    <div class="sb-brand-icon"><i class="ti ti-chart-bar"></i></div>
-    <div>
-      <div class="sb-brand-name">VapeDash</div>
-      <div class="sb-brand-sub">GESTIÓN DE NEGOCIO</div>
-    </div>
+    <div class="sb-icon"><i class="ti ti-chart-bar"></i></div>
+    <div><div class="sb-name">VapeDash</div><div class="sb-sub">GESTIÓN</div></div>
   </div>
-
-  <div class="sb-section">
-    <div class="sb-section-label">Principal</div>
-    <div class="sb-link active"><i class="ti ti-layout-dashboard"></i> Dashboard</div>
-    <div class="sb-link" onclick="scrollTo(0,0)"><i class="ti ti-package"></i> Inventario</div>
-    <div class="sb-link" onclick="scrollTo(0,0)"><i class="ti ti-chart-pie"></i> Estadísticas</div>
+  <div class="sb-sec">
+    <div class="sb-lbl">Vistas</div>
+    <div class="sb-a on" onclick="showPage('dashboard',this)"><i class="ti ti-layout-dashboard"></i> Dashboard</div>
+    <div class="sb-a" onclick="showPage('inventario',this)"><i class="ti ti-package"></i> Inventario</div>
+    <div class="sb-a" onclick="showPage('estadisticas',this)"><i class="ti ti-chart-pie"></i> Estadísticas</div>
   </div>
-  <div class="sb-section">
-    <div class="sb-section-label">Herramientas</div>
-    <div class="sb-link" onclick="loadData()"><i class="ti ti-refresh"></i> Actualizar datos</div>
-    <div class="sb-link" onclick="exportCSV()"><i class="ti ti-file-download"></i> Exportar CSV</div>
-    <div class="sb-link" onclick="window.open('https://docs.google.com/spreadsheets','_blank')"><i class="ti ti-brand-google"></i> Abrir Google Sheets</div>
+  <div class="sb-sec">
+    <div class="sb-lbl">Herramientas</div>
+    <div class="sb-a" onclick="openCalc()"><i class="ti ti-calculator"></i> Calculadora</div>
+    <div class="sb-a" onclick="openCompare()"><i class="ti ti-arrows-diff"></i> Comparar</div>
+    <div class="sb-a" onclick="loadData()"><i class="ti ti-refresh"></i> Actualizar</div>
+    <div class="sb-a" onclick="exportCSV()"><i class="ti ti-file-download"></i> Exportar CSV</div>
+    <div class="sb-a" onclick="window.open('https://docs.google.com/spreadsheets','_blank')"><i class="ti ti-brand-google"></i> Google Sheets</div>
   </div>
-
-  <div class="sb-footer">
-    <div class="sb-sync">
-      <span class="sync-dot" id="syncDot"></span>
-      <span id="syncText">Cargando...</span>
-    </div>
-    <div style="font-size:11px;color:var(--gray-300);margin-top:4px;font-family:var(--mono)" id="syncTime"></div>
+  <div class="sb-ft">
+    <div class="sync-row"><span class="dot" id="syncDot"></span><span id="syncTxt">Cargando...</span></div>
+    <div style="font-size:10px;color:var(--g300);margin-top:3px;font-family:var(--mono)" id="syncTime"></div>
   </div>
 </aside>
 
-<!-- ══ MAIN ══════════════════════════════════════════ -->
+<!-- MAIN -->
 <div class="main">
+<div class="topbar">
+  <div class="topbar-title" id="topTitle">Dashboard</div>
+  <div class="tb-r">
+    <div class="search"><i class="ti ti-search"></i><input type="text" id="si" placeholder="Buscar producto..." oninput="doSearch(this.value)"></div>
+    <select class="btn" id="catSel" onchange="setCat(this.value)"><option value="">Todas las categorías</option></select>
+    <button class="btn primary" onclick="loadData()"><i class="ti ti-refresh"></i> Sync</button>
+    <button class="btn success" onclick="openCalc()"><i class="ti ti-calculator"></i> Calculadora</button>
+    <button class="btn" onclick="exportCSV()"><i class="ti ti-download"></i> CSV</button>
+  </div>
+</div>
 
-  <!-- Topbar -->
-  <div class="topbar">
-    <div class="topbar-title">Panel de Control — Stock &amp; Ganancias</div>
-    <div class="topbar-right">
-      <div class="search">
-        <i class="ti ti-search"></i>
-        <input type="text" id="searchInput" placeholder="Buscar producto o sabor..." oninput="doSearch(this.value)">
-      </div>
-      <select class="btn" id="catSel" onchange="setCat(this.value)">
-        <option value="">Todas las categorías</option>
-      </select>
-      <button class="btn primary" onclick="loadData()"><i class="ti ti-refresh"></i> Actualizar</button>
-      <button class="btn" onclick="exportCSV()"><i class="ti ti-download"></i> CSV</button>
+<!-- ═══ DASHBOARD ═══ -->
+<div class="page active" id="p-dashboard">
+  <div class="ph"><div><h1>Resumen general</h1><p id="hSub">Conectando...</p></div></div>
+  <div id="alertsZ" style="margin-bottom:12px"></div>
+  <div class="kpi-grid" id="kpiGrid"></div>
+  <div class="sec-t">Gráficos de análisis</div>
+  <div class="charts-3" id="chartsTop"></div>
+  <div class="charts-2" id="chartsBot"></div>
+  <div class="sec-t">Inventario completo</div>
+  <div class="tbl-card">
+    <div class="tbl-tb" id="tbToolbar"></div>
+    <div class="tbl-scroll"><table><thead id="tHead"></thead><tbody id="tBody"></tbody></table></div>
+  </div>
+  <div class="bot-grid" id="botGrid"></div>
+</div>
+
+<!-- ═══ INVENTARIO ═══ -->
+<div class="page" id="p-inventario">
+  <div class="ph"><div><h1>Inventario detallado</h1><p id="invSub">—</p></div>
+    <div style="display:flex;gap:6px">
+      <button class="btn" onclick="exportCSV()"><i class="ti ti-download"></i> Exportar</button>
     </div>
   </div>
-
-  <!-- Content -->
-  <div class="content">
-    <div class="page-header">
-      <div>
-        <h1>Resumen general</h1>
-        <p id="headerSub">Conectando a Google Sheets...</p>
-      </div>
-    </div>
-
-    <div id="appRoot">
-      <div class="loading-state">
-        <div class="spinner"></div>
-        <div style="font-size:13px;color:var(--gray-500)">Cargando datos desde Google Sheets...</div>
-      </div>
-    </div>
+  <div class="inv-filters">
+    <div class="search"><i class="ti ti-search"></i><input type="text" id="invSearch" placeholder="Buscar..." oninput="doInvSearch(this.value)"></div>
+    <select class="btn" id="invCat" onchange="setInvCat(this.value)"><option value="">Todas las categorías</option></select>
+    <select class="btn" id="invSort" onchange="setInvSort(this.value)">
+      <option value="potential">Ordenar: Gan. potencial</option>
+      <option value="margin">Ordenar: Margen %</option>
+      <option value="_s">Ordenar: Stock</option>
+      <option value="_p">Ordenar: Precio</option>
+      <option value="roi">Ordenar: ROI</option>
+    </select>
+    <button class="tab on" onclick="setInvFilter(this,'all')" id="if-all">Todos</button>
+    <button class="tab" onclick="setInvFilter(this,'ok')">Con stock</button>
+    <button class="tab" onclick="setInvFilter(this,'bajo')">Stock bajo</button>
+    <button class="tab" onclick="setInvFilter(this,'sin')">Sin stock</button>
   </div>
+  <div class="tbl-card">
+    <div class="tbl-scroll"><table>
+      <thead><tr>
+        <th style="width:44px">Img</th>
+        <th>Producto / Sabor</th>
+        <th>Categoría</th>
+        <th onclick="setInvSortCol('_c')" id="ic-_c">Costo</th>
+        <th onclick="setInvSortCol('_p')" id="ic-_p">Precio</th>
+        <th onclick="setInvSortCol('margin')" id="ic-margin">Margen %</th>
+        <th onclick="setInvSortCol('netGain')" id="ic-netGain">Gan/ud</th>
+        <th onclick="setInvSortCol('_s')" id="ic-_s">Stock</th>
+        <th onclick="setInvSortCol('invVal')" id="ic-invVal">Val. inv.</th>
+        <th onclick="setInvSortCol('potential')" id="ic-potential">G. potencial</th>
+        <th onclick="setInvSortCol('roi')" id="ic-roi">ROI %</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr></thead>
+      <tbody id="invBody"></tbody>
+    </table></div>
+  </div>
+</div>
 
-  <div class="footer" id="footerBar">VapeDash · Google Sheets sync · Actualización automática cada 60 seg</div>
+<!-- ═══ ESTADÍSTICAS ═══ -->
+<div class="page" id="p-estadisticas">
+  <div class="ph"><div><h1>Estadísticas del negocio</h1><p>Análisis de rentabilidad y proyecciones</p></div></div>
+  <div class="kpi-grid" id="statsKpi"></div>
+  <div class="sec-t">Rentabilidad por producto</div>
+  <div class="chart-box" style="margin-bottom:16px">
+    <div class="chart-ttl">Ranking de rentabilidad — Margen % por producto</div>
+    <div class="chart-sub">Ordenado de mayor a menor margen</div>
+    <div style="position:relative;height:320px"><canvas id="chRanking" role="img" aria-label="Ranking rentabilidad">Gráfico</canvas></div>
+  </div>
+  <div class="charts-2" id="statsCharts2"></div>
+  <div class="sec-t">Proyección de reposición</div>
+  <div class="tbl-card">
+    <div class="tbl-scroll"><table>
+      <thead><tr>
+        <th>Producto</th><th>Stock actual</th><th>Estado</th>
+        <th>Gan. bloqueada</th><th>Prioridad</th><th>Acción sugerida</th>
+      </tr></thead>
+      <tbody id="repoBody"></tbody>
+    </table></div>
+  </div>
+</div>
+
 </div><!-- /main -->
-</div><!-- /layout -->
+</div><!-- /app -->
+
+<!-- ═══ MODAL CALCULADORA ═══ -->
+<div class="modal-bg" id="modalCalc">
+  <div class="modal">
+    <h2><i class="ti ti-calculator" style="color:var(--bl)"></i> Calculadora de precio sugerido
+      <button class="modal-close" onclick="closeModal('modalCalc')"><i class="ti ti-x"></i></button>
+    </h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Costo del producto</label>
+        <input type="number" id="calcCosto" placeholder="ej: 15000" oninput="recalc()">
+      </div>
+      <div class="form-group">
+        <label>Margen deseado %</label>
+        <input type="number" id="calcMargen" placeholder="ej: 45" value="45" oninput="recalc()">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Stock disponible</label>
+        <input type="number" id="calcStock" placeholder="ej: 10" oninput="recalc()">
+      </div>
+      <div class="form-group">
+        <label>Precio actual (opcional)</label>
+        <input type="number" id="calcPrecioActual" placeholder="ej: 25000" oninput="recalc()">
+      </div>
+    </div>
+    <div class="calc-result" id="calcResult">
+      <div style="font-size:11px;color:var(--g400);text-align:center">Completá los campos para ver el cálculo</div>
+    </div>
+    <div style="margin-top:12px">
+      <div class="sec-t">Simular con producto existente</div>
+      <div class="form-group">
+        <label>Seleccionar producto</label>
+        <select id="calcProdSel" onchange="loadCalcProd()"><option value="">— Elegir producto —</option></select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL COMPARAR ═══ -->
+<div class="modal-bg" id="modalCompare">
+  <div class="modal" style="max-width:640px">
+    <h2><i class="ti ti-arrows-diff" style="color:var(--pu)"></i> Comparar productos
+      <button class="modal-close" onclick="closeModal('modalCompare')"><i class="ti ti-x"></i></button>
+    </h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Producto A</label>
+        <select id="compA" onchange="renderCompare()"><option value="">— Elegir —</option></select>
+      </div>
+      <div class="form-group">
+        <label>Producto B</label>
+        <select id="compB" onchange="renderCompare()"><option value="">— Elegir —</option></select>
+      </div>
+    </div>
+    <div id="compareResult"></div>
+  </div>
+</div>
 
 <script>
 const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwiJQnEG8DaPdTtXeP6vKKKB813pqGNul6LLXQnf6_-D1j4ESTPfcCm4p4Xf87fASn7aA/exec';
 
-let ALL = [], filtered = [];
-let sortKey = 'potential', sortDir = -1;
-let activeTab = 'all', searchQ = '', catQ = '';
-let chartMargen = null, chartEstado = null;
+let ALL=[], filtered=[];
+let sk='potential', sd=-1;
+let activeTab='all', sq='', cq='';
+let invSk='potential', invSd=-1, invFilter='all', invSq='', invCq='';
+let charts={};
 
-/* ── PARSE ───────────────────────────────── */
-function parsePesos(v) {
-  if (typeof v === 'number') return v;
-  if (!v) return 0;
+/* ── PARSE ── */
+function parsePesos(v){
+  if(typeof v==='number') return v;
+  if(!v) return 0;
   return parseFloat(String(v).replace(/[$\s]/g,'').replace(/\./g,'').replace(',','.')) || 0;
 }
-function calc(p) {
-  const costo   = parsePesos(p['COSTO']);
-  const precio  = parsePesos(p['PRECIO VENTA']);
-  const stock   = parseInt(p['STOCK ACTUAL']) || 0;
-  const margin  = precio > 0 ? (precio - costo) / precio * 100 : 0;
-  const netGain = precio - costo;
-  const invVal  = stock * costo;
-  const potential = stock * netGain;
-  const roi     = costo > 0 ? (precio - costo) / costo * 100 : 0;
-  return { ...p, _c: costo, _p: precio, _s: stock, margin, netGain, invVal, potential, roi };
+function calc(p){
+  const c=parsePesos(p['COSTO']), pr=parsePesos(p['PRECIO VENTA']), s=parseInt(p['STOCK ACTUAL'])||0;
+  const margin=pr>0?(pr-c)/pr*100:0;
+  const netGain=pr-c, invVal=s*c, potential=s*netGain, roi=c>0?(pr-c)/c*100:0;
+  return{...p,_c:c,_p:pr,_s:s,margin,netGain,invVal,potential,roi};
 }
-function status(p) {
-  const st = String(p['ESTADO'] || '').toUpperCase();
-  if (st.includes('SIN') || p._s === 0) return 'sin';
-  if (st.includes('BAJO') || p._s <= 3) return 'bajo';
+function st(p){
+  const s=String(p['ESTADO']||'').toUpperCase();
+  if(s.includes('SIN')||p._s===0) return 'sin';
+  if(s.includes('BAJO')||p._s<=3) return 'bajo';
   return 'ok';
 }
 
-/* ── FORMAT ──────────────────────────────── */
-const $  = n => '$' + Math.round(n).toLocaleString('es-AR');
-const pct = n => Math.round(n) + '%';
-const num = n => Math.round(n).toLocaleString('es-AR');
+/* ── FORMAT ── */
+const $n=n=>'$'+Math.round(n).toLocaleString('es-AR');
+const pc=n=>Math.round(n)+'%';
 
-/* ── LOAD ────────────────────────────────── */
-async function loadData() {
-  setSyncState('loading');
-  try {
-    const r = await fetch(SHEET_URL + '?t=' + Date.now());
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const json = await r.json();
-    let rows = [];
-    if (Array.isArray(json)) rows = json;
-    else if (json.productos) rows = json.productos;
-    else if (json.data) rows = json.data;
-    else { const k = Object.values(json).find(v => Array.isArray(v)); if (k) rows = k; }
-    rows = rows.filter(r => r['PRODUCTO'] && String(r['PRODUCTO']).trim());
-    if (!rows.length) throw new Error('No se encontraron filas con datos en la pestaña STOCK.');
-    ALL = rows.map(calc);
-    filtered = [...ALL];
-    buildCatFilter();
-    renderAll();
-    setSyncState('ok');
-    const now = new Date();
-    document.getElementById('syncTime').textContent = now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) + ' hs';
-    document.getElementById('headerSub').textContent =
-      ALL.length + ' productos · Actualizado ' + now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
-  } catch(e) {
-    setSyncState('error');
-    document.getElementById('appRoot').innerHTML = `
-      <div class="err-box">
-        <strong><i class="ti ti-alert-circle"></i> No se pudo conectar con Google Sheets</strong>
-        <p>${e.message}<br><br>
-        Verificá en Apps Script → Implementar → Administrar implementaciones → Acceso: <b>"Cualquier usuario (anónimo)"</b></p>
-        <button class="btn" style="margin-top:12px" onclick="loadData()"><i class="ti ti-refresh"></i> Reintentar</button>
-      </div>`;
+/* ── LOAD ── */
+async function loadData(){
+  setSS('loading');
+  try{
+    const r=await fetch(SHEET_URL+'?t='+Date.now());
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const json=await r.json();
+    let rows=[];
+    if(Array.isArray(json)) rows=json;
+    else if(json.productos) rows=json.productos;
+    else if(json.data) rows=json.data;
+    else{ const k=Object.values(json).find(v=>Array.isArray(v)); if(k) rows=k; }
+    rows=rows.filter(r=>r['PRODUCTO']&&String(r['PRODUCTO']).trim());
+    if(!rows.length) throw new Error('Sin filas. Verificá que la pestaña se llame STOCK.');
+    ALL=rows.map(calc);
+    filtered=[...ALL];
+    buildCatSelects();
+    buildProdSelects();
+    renderDashboard();
+    renderInventario();
+    renderEstadisticas();
+    setSS('ok');
+    const now=new Date();
+    document.getElementById('syncTime').textContent=now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})+' hs';
+    document.getElementById('hSub').textContent=ALL.length+' productos · '+now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+    document.getElementById('invSub').textContent=ALL.length+' productos cargados';
+  }catch(e){
+    setSS('error');
+    document.getElementById('p-dashboard').innerHTML=`<div class="err-box">
+      <strong><i class="ti ti-alert-circle"></i> Error al conectar</strong>
+      <p>${e.message}<br><br>Verificá en Apps Script → Implementar → Acceso: "Cualquier usuario"</p>
+      <button class="btn primary" style="margin-top:10px" onclick="loadData()"><i class="ti ti-refresh"></i> Reintentar</button>
+    </div>`;
   }
 }
-
-function setSyncState(s) {
-  const dot = document.getElementById('syncDot');
-  const txt = document.getElementById('syncText');
-  if (s === 'loading') { dot.style.background='#f59e0b'; txt.textContent='Sincronizando...'; }
-  else if (s === 'ok')  { dot.style.background='#22c55e'; txt.textContent='Conectado'; }
-  else                  { dot.style.background='#ef4444'; txt.textContent='Sin conexión'; }
+function setSS(s){
+  const d=document.getElementById('syncDot'), t=document.getElementById('syncTxt');
+  if(s==='loading'){d.style.background='#f59e0b';t.textContent='Sincronizando...';}
+  else if(s==='ok'){d.style.background='#22c55e';t.textContent='Conectado';}
+  else{d.style.background='#ef4444';t.textContent='Sin conexión';}
+}
+function buildCatSelects(){
+  const cats=[...new Set(ALL.map(p=>p['CATEGORÍA']||'').filter(Boolean))];
+  const opts='<option value="">Todas las categorías</option>'+cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+  ['catSel','invCat'].forEach(id=>{
+    const s=document.getElementById(id); if(s){const v=s.value;s.innerHTML=opts;s.value=v;}
+  });
+}
+function buildProdSelects(){
+  const opts='<option value="">— Elegir producto —</option>'+ALL.map((p,i)=>`<option value="${i}">${p['PRODUCTO']} ${p['SABOR']}</option>`).join('');
+  ['calcProdSel','compA','compB'].forEach(id=>{
+    const s=document.getElementById(id); if(s) s.innerHTML=opts;
+  });
 }
 
-function buildCatFilter() {
-  const cats = [...new Set(ALL.map(p => p['CATEGORÍA']||'').filter(Boolean))];
-  const sel = document.getElementById('catSel');
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">Todas las categorías</option>' +
-    cats.map(c => `<option value="${c}">${c}</option>`).join('');
-  sel.value = cur;
-}
-
-/* ── RENDER ALL ──────────────────────────── */
-function renderAll() {
-  document.getElementById('appRoot').innerHTML = `
-    <div id="alertsZone" style="margin-bottom:16px"></div>
-    <div class="kpi-row" id="kpiRow"></div>
-    <div class="charts-grid" id="chartsGrid"></div>
-    <div class="sec-title">Detalle de inventario</div>
-    <div class="table-panel">
-      <div class="table-toolbar" id="toolbar"></div>
-      <div class="tbl-scroll"><table><thead id="tHead"></thead><tbody id="tBody"></tbody></table></div>
-    </div>
-    <div class="bottom-grid" id="bottomGrid"></div>`;
+/* ══════════════════════════════════════
+   DASHBOARD
+══════════════════════════════════════ */
+function renderDashboard(){
   renderAlerts();
   renderKPIs();
-  renderCharts();
+  renderChartsTop();
+  renderChartsBot();
   buildToolbar();
   buildThead();
-  applyFilters();
-  renderTable();
+  applyFilters(); renderTable();
   renderRankings();
 }
 
-/* ── ALERTS ──────────────────────────────── */
-function renderAlerts() {
-  const sin  = ALL.filter(p => status(p)==='sin');
-  const bajo = ALL.filter(p => status(p)==='bajo');
-  let h = '';
-  if (sin.length)
-    h += `<div class="alert danger"><i class="ti ti-alert-triangle"></i><div>
-      <strong>Sin stock (${sin.length} productos):</strong> ${sin.map(p=>p['PRODUCTO']+' '+p['SABOR']).join(' · ')}
-    </div></div>`;
-  if (bajo.length)
-    h += `<div class="alert warning"><i class="ti ti-alert-circle"></i><div>
-      <strong>Stock bajo (${bajo.length} productos):</strong> ${bajo.map(p=>p['PRODUCTO']+' '+p['SABOR']+' ('+p._s+' ud.)').join(' · ')}
-    </div></div>`;
-  document.getElementById('alertsZone').innerHTML = h;
+function renderAlerts(){
+  const sin=ALL.filter(p=>st(p)==='sin'), bajo=ALL.filter(p=>st(p)==='bajo');
+  let h='';
+  if(sin.length) h+=`<div class="alert danger"><i class="ti ti-alert-triangle"></i><div><strong>Sin stock (${sin.length}):</strong> ${sin.map(p=>p['PRODUCTO']+' '+p['SABOR']).join(' · ')}</div></div>`;
+  if(bajo.length) h+=`<div class="alert warning"><i class="ti ti-alert-circle"></i><div><strong>Stock bajo (${bajo.length}):</strong> ${bajo.map(p=>p['PRODUCTO']+' '+p['SABOR']+'('+p._s+')').join(' · ')}</div></div>`;
+  document.getElementById('alertsZ').innerHTML=h;
 }
 
-/* ── KPIs ────────────────────────────────── */
-function renderKPIs() {
-  const inv  = ALL.reduce((a,p)=>a+p.invVal,0);
-  const pot  = ALL.reduce((a,p)=>a+p.potential,0);
-  const avgM = ALL.length ? ALL.reduce((a,p)=>a+p.margin,0)/ALL.length : 0;
-  const sinN = ALL.filter(p=>status(p)==='sin').length;
-  const bajN = ALL.filter(p=>status(p)==='bajo').length;
-  const stTot= ALL.reduce((a,p)=>a+p._s,0);
-  const topM = [...ALL].sort((a,b)=>b.margin-a.margin)[0];
-
-  const kpis = [
-    { icon:'ti-package',     cls:'blue',  label:'Total productos', value:ALL.length,    sub:stTot+' unidades en stock' },
-    { icon:'ti-currency-dollar', cls:'green', label:'Capital invertido', value:$(inv),  sub:'Costo total del stock' },
-    { icon:'ti-trending-up', cls:'teal',  label:'Ganancia potencial', value:$(pot),     sub:'Si vendés todo el stock' },
-    { icon:'ti-percent',     cls:'blue',  label:'Margen promedio',  value:pct(avgM),    sub:'Sobre todos los productos' },
-    { icon:'ti-alert-triangle', cls:'red', label:'Sin stock',        value:sinN,        sub:'Productos agotados' },
-    { icon:'ti-alert-circle', cls:'amber', label:'Stock bajo',       value:bajN,        sub:'≤ 3 unidades' },
-    { icon:'ti-star',        cls:'green', label:'Mejor margen',     value:topM?pct(topM.margin):'-', sub:topM?(topM['PRODUCTO']+' '+topM['SABOR']):'—' },
-    { icon:'ti-calculator',  cls:'teal',  label:'Mayor ganancia/ud', value:topM?$(topM.netGain):'-', sub:topM?'ROI '+Math.round(topM.roi)+'%':'—' },
+function renderKPIs(){
+  const inv=ALL.reduce((a,p)=>a+p.invVal,0), pot=ALL.reduce((a,p)=>a+p.potential,0);
+  const avgM=ALL.length?ALL.reduce((a,p)=>a+p.margin,0)/ALL.length:0;
+  const sinN=ALL.filter(p=>st(p)==='sin').length, bajN=ALL.filter(p=>st(p)==='bajo').length;
+  const stTot=ALL.reduce((a,p)=>a+p._s,0);
+  const topM=[...ALL].sort((a,b)=>b.margin-a.margin)[0];
+  const kpis=[
+    {i:'ti-package',c:'bl',lbl:'Productos',val:ALL.length,sub:stTot+' uds. en stock'},
+    {i:'ti-currency-dollar',c:'gr',lbl:'Capital invertido',val:$n(inv),sub:'Valor costo del stock'},
+    {i:'ti-trending-up',c:'te',lbl:'Gan. potencial',val:$n(pot),sub:'Si vendés todo'},
+    {i:'ti-percent',c:'bl',lbl:'Margen promedio',val:pc(avgM),sub:'Todos los productos'},
+    {i:'ti-alert-triangle',c:'rd',lbl:'Sin stock',val:sinN,sub:'Productos agotados'},
+    {i:'ti-alert-circle',c:'am',lbl:'Stock bajo',val:bajN,sub:'≤ 3 unidades'},
+    {i:'ti-star',c:'gr',lbl:'Mejor margen',val:topM?pc(topM.margin):'-',sub:topM?topM['PRODUCTO']:'—'},
+    {i:'ti-calculator',c:'pu',lbl:'Mayor gan./ud',val:topM?$n(topM.netGain):'-',sub:topM?'ROI '+Math.round(topM.roi)+'%':'—'},
   ];
-  document.getElementById('kpiRow').innerHTML = kpis.map(k => `
-    <div class="kpi-card ${k.cls}">
-      <div class="kpi-icon ${k.cls}"><i class="ti ${k.icon}"></i></div>
-      <div class="kpi-label">${k.label}</div>
-      <div class="kpi-value">${k.value}</div>
+  document.getElementById('kpiGrid').innerHTML=kpis.map(k=>`
+    <div class="kpi ${k.c}">
+      <div class="kpi-ic ${k.c}"><i class="ti ${k.i}"></i></div>
+      <div class="kpi-lbl">${k.lbl}</div>
+      <div class="kpi-val">${k.val}</div>
       <div class="kpi-sub">${k.sub}</div>
     </div>`).join('');
 }
 
-/* ── CHARTS ──────────────────────────────── */
-function renderCharts() {
-  document.getElementById('chartsGrid').innerHTML = `
-    <div class="chart-panel">
-      <div class="chart-panel-title">Ganancia potencial por producto</div>
-      <div class="chart-panel-sub">Stock actual × (Precio − Costo) — top 8 productos</div>
-      <div class="legend-row" id="leg1"></div>
-      <div style="position:relative;height:230px"><canvas id="ch1" role="img" aria-label="Ganancia potencial por producto">Gráfico de barras</canvas></div>
+function renderChartsTop(){
+  document.getElementById('chartsTop').innerHTML=`
+    <div class="chart-box">
+      <div class="chart-ttl">Gan. potencial — Top 6</div>
+      <div class="chart-sub">stock × (precio − costo)</div>
+      <div class="leg" id="leg1"></div>
+      <div style="position:relative;height:180px"><canvas id="ch1" role="img" aria-label="Ganancia potencial">Gráfico</canvas></div>
     </div>
-    <div class="chart-panel">
-      <div class="chart-panel-title">Estado del inventario</div>
-      <div class="chart-panel-sub">Distribución por disponibilidad</div>
-      <div class="legend-row" id="leg2"></div>
-      <div style="position:relative;height:230px"><canvas id="ch2" role="img" aria-label="Estado del inventario">Gráfico de dona</canvas></div>
+    <div class="chart-box">
+      <div class="chart-ttl">Ganancia por marca</div>
+      <div class="chart-sub">Gan. neta total estimada</div>
+      <div class="leg" id="leg2"></div>
+      <div style="position:relative;height:180px"><canvas id="ch2" role="img" aria-label="Ganancia por marca">Gráfico</canvas></div>
+    </div>
+    <div class="chart-box">
+      <div class="chart-ttl">Estado del inventario</div>
+      <div class="chart-sub">Distribución productos</div>
+      <div class="leg" id="leg3"></div>
+      <div style="position:relative;height:180px"><canvas id="ch3" role="img" aria-label="Estado inventario">Gráfico</canvas></div>
     </div>`;
 
-  const top8 = [...ALL].sort((a,b)=>b.potential-a.potential).slice(0,8);
-  const barColors = top8.map(p => {
-    const s = status(p);
-    return s==='sin'?'#ef444488':s==='bajo'?'#f59e0b99':'#1a56db99';
+  // Chart 1 — Ganancia potencial top 6
+  const t6=[...ALL].sort((a,b)=>b.potential-a.potential).slice(0,6);
+  const bc=t6.map(p=>st(p)==='sin'?'#ef444488':st(p)==='bajo'?'#f59e0b99':'#1a56db99');
+  if(charts.ch1) charts.ch1.destroy();
+  charts.ch1=new Chart(document.getElementById('ch1'),{
+    type:'bar',
+    data:{labels:t6.map(p=>(p['PRODUCTO']+' '+p['SABOR']).slice(0,18)),
+      datasets:[{data:t6.map(p=>p.potential),backgroundColor:bc,borderRadius:4,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>$n(v.raw)}}},
+      scales:{x:{ticks:{color:'#8f99ab',font:{size:9}},grid:{color:'#eef0f4'}},
+        y:{ticks:{color:'#8f99ab',font:{size:9},callback:v=>'$'+Math.round(v/1000)+'k'},grid:{color:'#eef0f4'}}}}
   });
-  const borderColors = top8.map(p => {
-    const s = status(p);
-    return s==='sin'?'#ef4444':s==='bajo'?'#f59e0b':'#1a56db';
-  });
+  document.getElementById('leg1').innerHTML=`<span class="li"><span class="ld" style="background:#1a56db"></span>Con stock</span><span class="li"><span class="ld" style="background:#f59e0b"></span>Bajo</span><span class="li"><span class="ld" style="background:#ef4444"></span>Sin stock</span>`;
 
-  if (chartMargen) chartMargen.destroy();
-  chartMargen = new Chart(document.getElementById('ch1'), {
-    type: 'bar',
-    data: {
-      labels: top8.map(p => (p['PRODUCTO']+' '+p['SABOR']).slice(0,22)),
-      datasets: [{
-        label: 'Gan. potencial',
-        data: top8.map(p => p.potential),
-        backgroundColor: barColors,
-        borderColor: borderColors,
-        borderWidth: 1.5,
-        borderRadius: 4,
-        borderSkipped: false
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: v => $(v.raw) } } },
-      scales: {
-        x: { ticks: { color:'#8f99ab', font:{size:9} }, grid: { color:'#eef0f4' } },
-        y: { ticks: { color:'#8f99ab', font:{size:9}, callback: v => '$'+Math.round(v/1000)+'k' }, grid: { color:'#eef0f4' } }
-      }
-    }
+  // Chart 2 — Ganancia por marca
+  const marcas=[...new Set(ALL.map(p=>p['PRODUCTO']||'').map(n=>n.split(' ')[0]).filter(Boolean))];
+  const marcaGain=marcas.map(m=>ALL.filter(p=>(p['PRODUCTO']||'').startsWith(m)).reduce((a,p)=>a+p.netGain*Math.max(p._s,1),0));
+  const paleta=['#1a56db','#0891b2','#0e7c3a','#6d28d9','#92530a','#b91c1c','#374151'];
+  if(charts.ch2) charts.ch2.destroy();
+  charts.ch2=new Chart(document.getElementById('ch2'),{
+    type:'doughnut',
+    data:{labels:marcas,datasets:[{data:marcaGain,backgroundColor:paleta.slice(0,marcas.length),borderWidth:1.5,borderColor:paleta.slice(0,marcas.length)}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>v.label+': '+$n(v.raw)}}}}
   });
-  document.getElementById('leg1').innerHTML = `
-    <span class="leg"><span class="leg-dot" style="background:#1a56db"></span>Con stock</span>
-    <span class="leg"><span class="leg-dot" style="background:#f59e0b"></span>Stock bajo</span>
-    <span class="leg"><span class="leg-dot" style="background:#ef4444"></span>Sin stock</span>`;
+  document.getElementById('leg2').innerHTML=marcas.map((m,i)=>`<span class="li"><span class="ld" style="background:${paleta[i]||'#999'}"></span>${m}</span>`).join('');
 
-  const ok  = ALL.filter(p=>status(p)==='ok').length;
-  const baj = ALL.filter(p=>status(p)==='bajo').length;
-  const sin = ALL.filter(p=>status(p)==='sin').length;
-
-  if (chartEstado) chartEstado.destroy();
-  chartEstado = new Chart(document.getElementById('ch2'), {
-    type: 'doughnut',
-    data: {
-      labels: ['Con stock','Stock bajo','Sin stock'],
-      datasets: [{
-        data: [ok, baj, sin],
-        backgroundColor: ['#1a56db44','#f59e0b44','#ef444444'],
-        borderColor: ['#1a56db','#f59e0b','#ef4444'],
-        borderWidth: 2
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false, cutout: '65%',
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: v => v.label + ': ' + v.raw + ' prods' } }
-      }
-    }
+  // Chart 3 — Estado
+  const ok=ALL.filter(p=>st(p)==='ok').length, baj=ALL.filter(p=>st(p)==='bajo').length, sin=ALL.filter(p=>st(p)==='sin').length;
+  if(charts.ch3) charts.ch3.destroy();
+  charts.ch3=new Chart(document.getElementById('ch3'),{
+    type:'doughnut',
+    data:{labels:['Con stock','Stock bajo','Sin stock'],datasets:[{
+      data:[ok,baj,sin],backgroundColor:['#1a56db44','#f59e0b44','#ef444444'],
+      borderColor:['#1a56db','#f59e0b','#ef4444'],borderWidth:1.5}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>v.label+': '+v.raw}}}}
   });
-  document.getElementById('leg2').innerHTML = `
-    <span class="leg"><span class="leg-dot" style="background:#1a56db"></span>OK (${ok})</span>
-    <span class="leg"><span class="leg-dot" style="background:#f59e0b"></span>Bajo (${baj})</span>
-    <span class="leg"><span class="leg-dot" style="background:#ef4444"></span>Sin stock (${sin})</span>`;
+  document.getElementById('leg3').innerHTML=`<span class="li"><span class="ld" style="background:#1a56db"></span>OK(${ok})</span><span class="li"><span class="ld" style="background:#f59e0b"></span>Bajo(${baj})</span><span class="li"><span class="ld" style="background:#ef4444"></span>Sin(${sin})</span>`;
 }
 
-/* ── TOOLBAR ─────────────────────────────── */
-function buildToolbar() {
-  const ok  = ALL.filter(p=>status(p)==='ok').length;
-  const baj = ALL.filter(p=>status(p)==='bajo').length;
-  const sin = ALL.filter(p=>status(p)==='sin').length;
-  document.getElementById('toolbar').innerHTML = `
-    <button class="tab-btn on"  onclick="setTab(this,'all')">Todos (${ALL.length})</button>
-    <button class="tab-btn" onclick="setTab(this,'ok')">Con stock (${ok})</button>
-    <button class="tab-btn" onclick="setTab(this,'bajo')">Stock bajo (${baj})</button>
-    <button class="tab-btn" onclick="setTab(this,'sin')">Sin stock (${sin})</button>
-    <button class="tab-btn" onclick="setTab(this,'top')">Más rentables</button>`;
+function renderChartsBot(){
+  document.getElementById('chartsBot').innerHTML=`
+    <div class="chart-box">
+      <div class="chart-ttl">Margen % por producto</div>
+      <div class="chart-sub">Todos los productos ordenados por margen</div>
+      <div style="position:relative;height:200px"><canvas id="ch4" role="img" aria-label="Margen por producto">Gráfico</canvas></div>
+    </div>
+    <div class="chart-box">
+      <div class="chart-ttl">Valor de inventario por producto</div>
+      <div class="chart-sub">Stock × Costo</div>
+      <div style="position:relative;height:200px"><canvas id="ch5" role="img" aria-label="Valor inventario">Gráfico</canvas></div>
+    </div>`;
+
+  const sorted=[...ALL].sort((a,b)=>b.margin-a.margin);
+  const mc=sorted.map(p=>p.margin>=50?'#0e7c3a':p.margin>=35?'#1a56db':p.margin>=20?'#f59e0b':'#ef4444');
+  if(charts.ch4) charts.ch4.destroy();
+  charts.ch4=new Chart(document.getElementById('ch4'),{
+    type:'bar',
+    data:{labels:sorted.map(p=>(p['PRODUCTO']||'').split(' ').slice(0,2).join(' ')),
+      datasets:[{data:sorted.map(p=>Math.round(p.margin)),backgroundColor:mc,borderRadius:3,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>v.raw+'%'}}},
+      scales:{x:{ticks:{color:'#8f99ab',font:{size:9}},grid:{display:false}},
+        y:{ticks:{color:'#8f99ab',font:{size:9},callback:v=>v+'%'},grid:{color:'#eef0f4'}}}}
+  });
+
+  const topInv=[...ALL].sort((a,b)=>b.invVal-a.invVal).slice(0,8);
+  if(charts.ch5) charts.ch5.destroy();
+  charts.ch5=new Chart(document.getElementById('ch5'),{
+    type:'bar',
+    data:{labels:topInv.map(p=>(p['PRODUCTO']||'').split(' ').slice(0,2).join(' ')),
+      datasets:[{data:topInv.map(p=>p.invVal),backgroundColor:'#0891b266',borderColor:'#0891b2',borderWidth:1.5,borderRadius:3,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>$n(v.raw)}}},
+      scales:{x:{ticks:{color:'#8f99ab',font:{size:9}},grid:{display:false}},
+        y:{ticks:{color:'#8f99ab',font:{size:9},callback:v=>'$'+Math.round(v/1000)+'k'},grid:{color:'#eef0f4'}}}}
+  });
 }
 
-/* ── THEAD ───────────────────────────────── */
-function buildThead() {
-  document.getElementById('tHead').innerHTML = `<tr>
-    <th style="width:50px">Img.</th>
-    <th onclick="doSort('PRODUCTO')" id="th-PRODUCTO">Producto / Sabor</th>
-    <th onclick="doSort('margin')" id="th-margin">Margen %</th>
+function buildToolbar(){
+  const ok=ALL.filter(p=>st(p)==='ok').length,baj=ALL.filter(p=>st(p)==='bajo').length,sin=ALL.filter(p=>st(p)==='sin').length;
+  document.getElementById('tbToolbar').innerHTML=`
+    <button class="tab on" onclick="setTab(this,'all')">Todos(${ALL.length})</button>
+    <button class="tab" onclick="setTab(this,'ok')">Con stock(${ok})</button>
+    <button class="tab" onclick="setTab(this,'bajo')">Stock bajo(${baj})</button>
+    <button class="tab" onclick="setTab(this,'sin')">Sin stock(${sin})</button>
+    <button class="tab" onclick="setTab(this,'top')">Más rentables</button>`;
+}
+function buildThead(){
+  document.getElementById('tHead').innerHTML=`<tr>
+    <th style="width:42px">Img</th>
+    <th onclick="doSort('PRODUCTO')" id="th-PRODUCTO">Producto</th>
+    <th onclick="doSort('margin')" id="th-margin">Margen%</th>
     <th onclick="doSort('_c')" id="th-_c">Costo</th>
-    <th onclick="doSort('_p')" id="th-_p">Precio venta</th>
-    <th onclick="doSort('netGain')" id="th-netGain">Gan. neta / ud.</th>
+    <th onclick="doSort('_p')" id="th-_p">Precio</th>
+    <th onclick="doSort('netGain')" id="th-netGain">Gan/ud</th>
     <th onclick="doSort('_s')" id="th-_s">Stock</th>
-    <th onclick="doSort('potential')" id="th-potential">Gan. potencial</th>
-    <th onclick="doSort('roi')" id="th-roi">ROI %</th>
-    <th>Estado</th>
-    <th>Pago</th>
+    <th onclick="doSort('potential')" id="th-potential">G.potencial</th>
+    <th onclick="doSort('roi')" id="th-roi">ROI%</th>
+    <th>Estado</th><th>Pago</th>
   </tr>`;
 }
-
-/* ── FILTERS ─────────────────────────────── */
-function applyFilters() {
-  let d = [...ALL];
-  if (searchQ) d = d.filter(p =>
-    (p['PRODUCTO']+' '+p['SABOR']+' '+(p['CATEGORÍA']||'')).toLowerCase().includes(searchQ));
-  if (catQ) d = d.filter(p => p['CATEGORÍA'] === catQ);
-  if (activeTab === 'ok')   d = d.filter(p => status(p)==='ok');
-  else if (activeTab === 'bajo') d = d.filter(p => status(p)==='bajo');
-  else if (activeTab === 'sin')  d = d.filter(p => status(p)==='sin');
-  else if (activeTab === 'top')  d = d.filter(p => p.margin >= 40);
-  d.sort((a,b) => (a[sortKey] > b[sortKey] ? 1 : -1) * sortDir);
-  filtered = d;
+function applyFilters(){
+  let d=[...ALL];
+  if(sq) d=d.filter(p=>(p['PRODUCTO']+' '+p['SABOR']+' '+(p['CATEGORÍA']||'')).toLowerCase().includes(sq));
+  if(cq) d=d.filter(p=>p['CATEGORÍA']===cq);
+  if(activeTab==='ok') d=d.filter(p=>st(p)==='ok');
+  else if(activeTab==='bajo') d=d.filter(p=>st(p)==='bajo');
+  else if(activeTab==='sin') d=d.filter(p=>st(p)==='sin');
+  else if(activeTab==='top') d=d.filter(p=>p.margin>=40);
+  d.sort((a,b)=>(a[sk]>b[sk]?1:-1)*sd);
+  filtered=d;
 }
-
-/* ── TABLE ───────────────────────────────── */
-function renderTable() {
-  const barC = m => m>=50?'#0e7c3a':m>=35?'#1a56db':m>=20?'#92530a':'#b91c1c';
-  const statusBadge = p => {
-    const s = status(p);
-    if (s==='sin')  return '<span class="badge bg-red">Sin stock</span>';
-    if (s==='bajo') return '<span class="badge bg-amber">Stock bajo</span>';
-    return '<span class="badge bg-green">Disponible</span>';
-  };
-
-  if (!filtered.length) {
-    document.getElementById('tBody').innerHTML =
-      '<tr><td colspan="11" style="text-align:center;padding:32px;color:var(--gray-400);font-size:13px">Sin resultados para este filtro</td></tr>';
-    return;
-  }
-
-  document.getElementById('tBody').innerHTML = filtered.map(p => `
+function barC(m){return m>=50?'#0e7c3a':m>=35?'#1a56db':m>=20?'#f59e0b':'#ef4444';}
+function stBadge(p){
+  const s=st(p);
+  if(s==='sin') return '<span class="bdg bg-rd">Sin stock</span>';
+  if(s==='bajo') return '<span class="bdg bg-am">Stock bajo</span>';
+  return '<span class="bdg bg-gr">Disponible</span>';
+}
+function renderTable(){
+  if(!document.getElementById('tBody')) return;
+  document.getElementById('tBody').innerHTML=filtered.map(p=>`
     <tr>
-      <td>${p['IMAGEN_URL']
-        ? `<img class="img-th" src="${p['IMAGEN_URL']}" alt="${p['PRODUCTO']}" loading="lazy" onerror="this.outerHTML='<div class=img-ph><i class=ti ti-package></i></div>'">`
-        : '<div class="img-ph"><i class="ti ti-package"></i></div>'}</td>
-      <td>
-        <div class="prod-name">${p['PRODUCTO']||''}</div>
-        <div class="prod-flavor">${p['SABOR']||''}${p['CATEGORÍA']?' · '+p['CATEGORÍA']:''}</div>
-      </td>
-      <td>
-        <div class="bar-wrap">
-          <span class="mono-val" style="min-width:34px;color:${barC(p.margin)};font-weight:600">${Math.round(p.margin)}%</span>
-          <div class="bar-track"><div class="bar-fill" style="width:${Math.min(Math.max(p.margin,0),100)}%;background:${barC(p.margin)}"></div></div>
-        </div>
-      </td>
-      <td class="mono-val">${$(p._c)}</td>
-      <td class="mono-val" style="font-weight:600">${$(p._p)}</td>
-      <td class="mono-val" style="color:var(--green);font-weight:600">${$(p.netGain)}</td>
-      <td class="mono-val" style="color:${p._s===0?'var(--red)':p._s<=3?'var(--amber)':'var(--gray-900)'};font-weight:600">${p._s}</td>
-      <td class="mono-val" style="color:var(--blue);font-weight:600">${$(p.potential)}</td>
-      <td class="mono-val">${Math.round(p.roi)}%</td>
-      <td>${statusBadge(p)}</td>
-      <td>${p['mp_link']
-        ? `<a href="${p['mp_link']}" target="_blank" class="badge bg-blue" style="text-decoration:none"><i class="ti ti-external-link" style="font-size:11px"></i> MP</a>`
-        : '<span style="color:var(--gray-300)">—</span>'}</td>
-    </tr>`).join('');
-
-  document.querySelectorAll('thead th[id^="th-"]').forEach(th => {
-    th.className = '';
-    const k = th.id.replace('th-','');
-    if (k === sortKey) th.className = sortDir === -1 ? 'desc' : 'asc';
+      <td>${p['IMAGEN_URL']?`<img class="img-t" src="${p['IMAGEN_URL']}" alt="${p['PRODUCTO']}" loading="lazy" onerror="this.outerHTML='<div class=img-p><i class=ti ti-package></i></div>'">`:'<div class="img-p"><i class="ti ti-package"></i></div>'}</td>
+      <td><div class="pn">${p['PRODUCTO']||''}</div><div class="pf">${p['SABOR']||''}</div></td>
+      <td><div class="bw"><span class="mv" style="min-width:30px;color:${barC(p.margin)};font-weight:600">${Math.round(p.margin)}%</span><div class="bt"><div class="bf" style="width:${Math.min(Math.max(p.margin,0),100)}%;background:${barC(p.margin)}"></div></div></div></td>
+      <td class="mv">${$n(p._c)}</td>
+      <td class="mv" style="font-weight:600">${$n(p._p)}</td>
+      <td class="mv" style="color:var(--gr);font-weight:600">${$n(p.netGain)}</td>
+      <td class="mv" style="color:${p._s===0?'var(--rd)':p._s<=3?'var(--am)':'var(--g900)'};font-weight:600">${p._s}</td>
+      <td class="mv" style="color:var(--bl);font-weight:600">${$n(p.potential)}</td>
+      <td class="mv">${Math.round(p.roi)}%</td>
+      <td>${stBadge(p)}</td>
+      <td>${p['mp_link']?`<a href="${p['mp_link']}" target="_blank" class="bdg bg-bl" style="text-decoration:none"><i class="ti ti-external-link"></i> MP</a>`:'<span style="color:var(--g300)">—</span>'}</td>
+    </tr>`).join('')||'<tr><td colspan="11" style="text-align:center;padding:24px;color:var(--g400);font-size:12px">Sin resultados</td></tr>';
+  document.querySelectorAll('thead th[id^="th-"]').forEach(th=>{
+    th.className=''; const k=th.id.replace('th-','');
+    if(k===sk) th.className=sd===-1?'desc':'asc';
   });
 }
-
-/* ── RANKINGS ────────────────────────────── */
-function renderRankings() {
-  const top5 = [...ALL].sort((a,b)=>b.margin-a.margin).slice(0,5);
-  const rep  = [...ALL].filter(p=>status(p)!=='ok').sort((a,b)=>a._s-b._s).slice(0,5);
-
-  document.getElementById('bottomGrid').innerHTML = `
-    <div class="rank-panel">
-      <div class="sec-title">Top 5 — Más rentables por margen</div>
-      ${top5.map((p,i) => `
-        <div class="rank-row">
-          <div class="rank-n">${i+1}</div>
-          <div class="rank-info">
-            <div class="rank-name">${p['PRODUCTO']} ${p['SABOR']}</div>
-            <div class="rank-hint">ROI ${Math.round(p.roi)}% · Gan. ${$(p.netGain)}/ud · Stock ${p._s}</div>
-          </div>
-          <div class="rank-val" style="color:var(--green)">${Math.round(p.margin)}%</div>
-        </div>`).join('')}
+function renderRankings(){
+  if(!document.getElementById('botGrid')) return;
+  const top5=[...ALL].sort((a,b)=>b.margin-a.margin).slice(0,5);
+  const rep=[...ALL].filter(p=>st(p)!=='ok').sort((a,b)=>a._s-b._s).slice(0,5);
+  document.getElementById('botGrid').innerHTML=`
+    <div class="rank-box">
+      <div class="sec-t">Top 5 — Más rentables</div>
+      ${top5.map((p,i)=>`<div class="rr"><div class="rn">${i+1}</div><div class="ri"><div class="rnm">${p['PRODUCTO']} ${p['SABOR']}</div><div class="rh">ROI ${Math.round(p.roi)}% · ${$n(p.netGain)}/ud</div></div><div class="rv" style="color:var(--gr)">${Math.round(p.margin)}%</div></div>`).join('')}
     </div>
-    <div class="rank-panel">
-      <div class="sec-title">Reponer urgente — Stock crítico</div>
-      ${rep.length ? rep.map((p,i) => `
-        <div class="rank-row">
-          <div class="rank-n">${i+1}</div>
-          <div class="rank-info">
-            <div class="rank-name">${p['PRODUCTO']} ${p['SABOR']}</div>
-            <div class="rank-hint">Gan. potencial bloqueada: ${$(p.potential)}</div>
-          </div>
-          <div class="rank-val" style="color:${p._s===0?'var(--red)':'var(--amber)'}">${p._s===0?'AGOTADO':p._s+' ud.'}</div>
-        </div>`).join('')
-      : '<div style="text-align:center;padding:20px;font-size:12px;color:var(--gray-400)"><i class="ti ti-circle-check" style="font-size:22px;display:block;margin-bottom:6px;color:var(--green-md)"></i>Todo el inventario está en orden</div>'}
+    <div class="rank-box">
+      <div class="sec-t">Reponer urgente</div>
+      ${rep.length?rep.map((p,i)=>`<div class="rr"><div class="rn">${i+1}</div><div class="ri"><div class="rnm">${p['PRODUCTO']} ${p['SABOR']}</div><div class="rh">G.potencial bloqueada: ${$n(p.potential)}</div></div><div class="rv" style="color:${p._s===0?'var(--rd)':'var(--am)'}">${p._s===0?'AGOTADO':p._s+' ud.'}</div></div>`).join(''):'<div style="text-align:center;padding:16px;font-size:11px;color:var(--g400)"><i class="ti ti-circle-check" style="color:var(--gr-md);display:block;font-size:20px;margin-bottom:4px"></i>Todo en orden</div>'}
     </div>`;
 }
 
-/* ── EVENTS ──────────────────────────────── */
-function setTab(el, t) {
-  activeTab = t;
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
-  el.classList.add('on');
-  applyFilters(); renderTable();
+/* ══════════════════════════════════════
+   INVENTARIO
+══════════════════════════════════════ */
+function renderInventario(){
+  applyInvFilters(); renderInvTable();
 }
-function doSearch(v) { searchQ = v.toLowerCase(); applyFilters(); renderTable(); }
-function setCat(v)   { catQ = v; applyFilters(); renderTable(); }
-function doSort(k) {
-  if (sortKey === k) sortDir *= -1; else { sortKey = k; sortDir = -1; }
-  applyFilters(); renderTable();
+function applyInvFilters(){
+  let d=[...ALL];
+  if(invSq) d=d.filter(p=>(p['PRODUCTO']+' '+p['SABOR']+' '+(p['CATEGORÍA']||'')).toLowerCase().includes(invSq));
+  if(invCq) d=d.filter(p=>p['CATEGORÍA']===invCq);
+  if(invFilter==='ok') d=d.filter(p=>st(p)==='ok');
+  else if(invFilter==='bajo') d=d.filter(p=>st(p)==='bajo');
+  else if(invFilter==='sin') d=d.filter(p=>st(p)==='sin');
+  d.sort((a,b)=>(a[invSk]>b[invSk]?1:-1)*invSd);
+  return d;
+}
+function renderInvTable(){
+  const data=applyInvFilters();
+  if(!document.getElementById('invBody')) return;
+  document.getElementById('invBody').innerHTML=data.map(p=>`
+    <tr>
+      <td>${p['IMAGEN_URL']?`<img class="img-t" src="${p['IMAGEN_URL']}" alt="${p['PRODUCTO']}" loading="lazy" onerror="this.outerHTML='<div class=img-p><i class=ti ti-package></i></div>'">`:'<div class="img-p"><i class="ti ti-package"></i></div>'}</td>
+      <td><div class="pn">${p['PRODUCTO']||''}</div><div class="pf">${p['SABOR']||''}</div></td>
+      <td><span class="bdg bg-bl">${p['CATEGORÍA']||'—'}</span></td>
+      <td class="mv">${$n(p._c)}</td>
+      <td class="mv" style="font-weight:600">${$n(p._p)}</td>
+      <td><div class="bw"><span class="mv" style="min-width:30px;color:${barC(p.margin)};font-weight:600">${Math.round(p.margin)}%</span><div class="bt"><div class="bf" style="width:${Math.min(Math.max(p.margin,0),100)}%;background:${barC(p.margin)}"></div></div></div></td>
+      <td class="mv" style="color:var(--gr);font-weight:600">${$n(p.netGain)}</td>
+      <td class="mv" style="color:${p._s===0?'var(--rd)':p._s<=3?'var(--am)':'var(--g900)'};font-weight:600">${p._s}</td>
+      <td class="mv">${$n(p.invVal)}</td>
+      <td class="mv" style="color:var(--bl);font-weight:600">${$n(p.potential)}</td>
+      <td class="mv" style="color:var(--pu)">${Math.round(p.roi)}%</td>
+      <td>${stBadge(p)}</td>
+      <td><button class="btn" style="padding:3px 8px;font-size:10px" onclick="quickCalc(${ALL.indexOf(p)})"><i class="ti ti-calculator"></i></button>
+          <button class="btn" style="padding:3px 8px;font-size:10px;margin-left:3px" onclick="quickCompare(${ALL.indexOf(p)})"><i class="ti ti-arrows-diff"></i></button>
+      </td>
+    </tr>`).join('')||'<tr><td colspan="13" style="text-align:center;padding:24px;color:var(--g400)">Sin resultados</td></tr>';
+
+  document.querySelectorAll('thead th[id^="ic-"]').forEach(th=>{
+    th.className=''; const k=th.id.replace('ic-','');
+    if(k===invSk) th.className=invSd===-1?'desc':'asc';
+  });
 }
 
-/* ── EXPORT CSV ──────────────────────────── */
-function exportCSV() {
-  if (!ALL.length) return alert('No hay datos para exportar.');
-  const cols = [
-    ['PRODUCTO','Producto'],['SABOR','Sabor'],['CATEGORÍA','Categoría'],
-    ['_c','Costo'],['_p','Precio Venta'],['_s','Stock'],['ESTADO','Estado'],
-    ['margin','Margen %'],['netGain','Gan. neta/ud'],['invVal','Valor inventario'],
-    ['potential','Gan. potencial'],['roi','ROI %']
+/* ══════════════════════════════════════
+   ESTADÍSTICAS
+══════════════════════════════════════ */
+function renderEstadisticas(){
+  renderStatsKPIs(); renderRankingChart(); renderStatsCharts2(); renderRepoTable();
+}
+function renderStatsKPIs(){
+  if(!document.getElementById('statsKpi')) return;
+  const inv=ALL.reduce((a,p)=>a+p.invVal,0), pot=ALL.reduce((a,p)=>a+p.potential,0);
+  const avgM=ALL.length?ALL.reduce((a,p)=>a+p.margin,0)/ALL.length:0;
+  const avgROI=ALL.length?ALL.reduce((a,p)=>a+p.roi,0)/ALL.length:0;
+  const topGain=[...ALL].sort((a,b)=>b.netGain-a.netGain)[0];
+  const conSt=ALL.filter(p=>st(p)==='ok').length;
+  const kpis=[
+    {i:'ti-trending-up',c:'gr',lbl:'Gan. potencial total',val:$n(pot),sub:'Stock × margen'},
+    {i:'ti-percent',c:'bl',lbl:'Margen promedio',val:pc(avgM),sub:'Todos los productos'},
+    {i:'ti-refresh',c:'pu',lbl:'ROI promedio',val:pc(avgROI),sub:'Retorno sobre inversión'},
+    {i:'ti-package',c:'te',lbl:'Productos activos',val:conSt,sub:'Con stock disponible'},
+    {i:'ti-star',c:'am',lbl:'Mayor gan. por ud.',val:topGain?$n(topGain.netGain):'-',sub:topGain?topGain['PRODUCTO']:'—'},
+    {i:'ti-currency-dollar',c:'rd',lbl:'Capital inmovilizado',val:$n(ALL.filter(p=>st(p)==='sin').reduce((a,p)=>a+p.invVal,0)),sub:'Productos sin stock'},
   ];
-  const hdr = cols.map(c=>c[1]).join(',');
-  const rows = ALL.map(p => cols.map(([k]) => {
-    let v = p[k] !== undefined ? p[k] : '';
-    if (['margin','netGain','invVal','potential','roi','_c','_p','_s'].includes(k)) v = Math.round(v);
-    return '"'+String(v).replace(/"/g,'""')+'"';
+  document.getElementById('statsKpi').innerHTML=kpis.map(k=>`
+    <div class="kpi ${k.c}">
+      <div class="kpi-ic ${k.c}"><i class="ti ${k.i}"></i></div>
+      <div class="kpi-lbl">${k.lbl}</div>
+      <div class="kpi-val">${k.val}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>`).join('');
+}
+function renderRankingChart(){
+  if(!document.getElementById('chRanking')) return;
+  const sorted=[...ALL].sort((a,b)=>b.margin-a.margin);
+  const cols=sorted.map(p=>p.margin>=50?'#0e7c3a':p.margin>=35?'#1a56db':p.margin>=20?'#f59e0b':'#ef4444');
+  if(charts.chRanking) charts.chRanking.destroy();
+  charts.chRanking=new Chart(document.getElementById('chRanking'),{
+    type:'bar',
+    data:{labels:sorted.map(p=>p['PRODUCTO']+' '+p['SABOR']),
+      datasets:[{label:'Margen %',data:sorted.map(p=>Math.round(p.margin)),backgroundColor:cols,borderRadius:3,borderSkipped:false}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>v.raw+'% — '+$n(ALL.find(p=>p['PRODUCTO']+' '+p['SABOR']===v.label)?.netGain||0)+'/ud'}}},
+      scales:{x:{ticks:{color:'#8f99ab',font:{size:9},callback:v=>v+'%'},grid:{color:'#eef0f4'}},
+        y:{ticks:{color:'#5d6a7e',font:{size:10}},grid:{display:false}}}}
+  });
+}
+function renderStatsCharts2(){
+  if(!document.getElementById('statsCharts2')) return;
+  document.getElementById('statsCharts2').innerHTML=`
+    <div class="chart-box">
+      <div class="chart-ttl">ROI por producto — Top 8</div>
+      <div class="chart-sub">Retorno sobre la inversión %</div>
+      <div style="position:relative;height:200px"><canvas id="chROI" role="img" aria-label="ROI por producto">Gráfico</canvas></div>
+    </div>
+    <div class="chart-box">
+      <div class="chart-ttl">Distribución ganancia potencial por marca</div>
+      <div class="chart-sub">Ganancia estimada total si se vende todo</div>
+      <div style="position:relative;height:200px"><canvas id="chMarcaPot" role="img" aria-label="Ganancia por marca">Gráfico</canvas></div>
+    </div>`;
+
+  const topROI=[...ALL].sort((a,b)=>b.roi-a.roi).slice(0,8);
+  if(charts.chROI) charts.chROI.destroy();
+  charts.chROI=new Chart(document.getElementById('chROI'),{
+    type:'bar',
+    data:{labels:topROI.map(p=>p['PRODUCTO'].split(' ').slice(0,2).join(' ')),
+      datasets:[{data:topROI.map(p=>Math.round(p.roi)),backgroundColor:'#6d28d966',borderColor:'#6d28d9',borderWidth:1.5,borderRadius:3,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>v.raw+'% ROI'}}},
+      scales:{x:{ticks:{color:'#8f99ab',font:{size:9}},grid:{display:false}},
+        y:{ticks:{color:'#8f99ab',font:{size:9},callback:v=>v+'%'},grid:{color:'#eef0f4'}}}}
+  });
+
+  const marcas=[...new Set(ALL.map(p=>(p['PRODUCTO']||'').split(' ')[0]).filter(Boolean))];
+  const marcaPot=marcas.map(m=>ALL.filter(p=>(p['PRODUCTO']||'').startsWith(m)).reduce((a,p)=>a+p.potential,0));
+  const pal=['#1a56db','#0891b2','#0e7c3a','#6d28d9','#92530a','#b91c1c'];
+  if(charts.chMarcaPot) charts.chMarcaPot.destroy();
+  charts.chMarcaPot=new Chart(document.getElementById('chMarcaPot'),{
+    type:'doughnut',
+    data:{labels:marcas,datasets:[{data:marcaPot,backgroundColor:pal.slice(0,marcas.length),borderWidth:1.5,borderColor:pal.slice(0,marcas.length)}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',
+      plugins:{legend:{labels:{color:'#5d6a7e',font:{size:10}}},tooltip:{callbacks:{label:v=>v.label+': '+$n(v.raw)}}}}
+  });
+}
+function renderRepoTable(){
+  if(!document.getElementById('repoBody')) return;
+  const prods=[...ALL].filter(p=>st(p)!=='ok').sort((a,b)=>{
+    const sp={'sin':0,'bajo':1}; return sp[st(a)]-sp[st(b)];
+  });
+  document.getElementById('repoBody').innerHTML=prods.map(p=>{
+    const s=st(p);
+    const prio=s==='sin'?'<span class="bdg bg-rd">URGENTE</span>':'<span class="bdg bg-am">MEDIA</span>';
+    const acc=s==='sin'?'Reponer inmediatamente — sin ventas posibles':'Reponer pronto — riesgo de agotamiento';
+    return`<tr>
+      <td><div class="pn">${p['PRODUCTO']} ${p['SABOR']}</div><div class="pf">${p['CATEGORÍA']||''}</div></td>
+      <td class="mv" style="font-weight:600;color:${s==='sin'?'var(--rd)':'var(--am)'}">${p._s}</td>
+      <td>${stBadge(p)}</td>
+      <td class="mv" style="color:var(--bl)">${$n(p.potential)}</td>
+      <td>${prio}</td>
+      <td style="font-size:11px;color:var(--g500)">${acc}</td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--g400);font-size:12px">Todo el inventario está en orden ✓</td></tr>';
+}
+
+/* ══════════════════════════════════════
+   CALCULADORA
+══════════════════════════════════════ */
+function openCalc(){document.getElementById('modalCalc').classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function recalc(){
+  const c=parseFloat(document.getElementById('calcCosto').value)||0;
+  const m=parseFloat(document.getElementById('calcMargen').value)||45;
+  const s=parseInt(document.getElementById('calcStock').value)||0;
+  const pa=parseFloat(document.getElementById('calcPrecioActual').value)||0;
+  if(!c){document.getElementById('calcResult').innerHTML='<div style="font-size:11px;color:var(--g400);text-align:center">Completá el costo para calcular</div>';return;}
+  const precioSug=c/(1-m/100);
+  const ganSug=precioSug-c;
+  const potSug=s*ganSug;
+  const roiSug=(ganSug/c)*100;
+  let diffHtml='';
+  if(pa>0){
+    const mAct=(pa-c)/pa*100, ganAct=pa-c;
+    const mejor=precioSug>pa;
+    diffHtml=`<div class="calc-row"><span style="color:var(--g500)">Precio actual</span><span>${$n(pa)}</span></div>
+    <div class="calc-row"><span style="color:var(--g500)">Margen actual</span><span>${Math.round(mAct)}%</span></div>
+    <div class="calc-row"><span style="color:var(--g500)">Diferencia de precio</span><span style="color:${mejor?'var(--gr)':'var(--am)'}">${mejor?'+':''} ${$n(precioSug-pa)}</span></div>`;
+  }
+  document.getElementById('calcResult').innerHTML=`
+    <div class="calc-row"><span style="color:var(--g500)">Costo</span><span>${$n(c)}</span></div>
+    <div class="calc-row"><span style="color:var(--g500)">Margen objetivo</span><span>${m}%</span></div>
+    <div class="calc-row highlight"><span>Precio sugerido</span><span>${$n(precioSug)}</span></div>
+    <div class="calc-row"><span style="color:var(--g500)">Ganancia por unidad</span><span style="color:var(--gr);font-weight:600">${$n(ganSug)}</span></div>
+    <div class="calc-row"><span style="color:var(--g500)">ROI</span><span style="color:var(--pu)">${Math.round(roiSug)}%</span></div>
+    ${s>0?`<div class="calc-row"><span style="color:var(--g500)">Gan. potencial (${s} ud.)</span><span style="color:var(--bl);font-weight:600">${$n(potSug)}</span></div>`:''}
+    ${diffHtml}`;
+}
+function loadCalcProd(){
+  const i=parseInt(document.getElementById('calcProdSel').value);
+  if(isNaN(i)) return;
+  const p=ALL[i];
+  document.getElementById('calcCosto').value=p._c;
+  document.getElementById('calcPrecioActual').value=p._p;
+  document.getElementById('calcStock').value=p._s;
+  recalc();
+}
+function quickCalc(i){
+  const p=ALL[i];
+  document.getElementById('calcCosto').value=p._c;
+  document.getElementById('calcPrecioActual').value=p._p;
+  document.getElementById('calcStock').value=p._s;
+  recalc();
+  openCalc();
+}
+
+/* ══════════════════════════════════════
+   COMPARAR
+══════════════════════════════════════ */
+function openCompare(){document.getElementById('modalCompare').classList.add('open');}
+function quickCompare(i){
+  document.getElementById('compA').value=i;
+  renderCompare();
+  openCompare();
+}
+function renderCompare(){
+  const iA=parseInt(document.getElementById('compA').value), iB=parseInt(document.getElementById('compB').value);
+  if(isNaN(iA)||isNaN(iB)){document.getElementById('compareResult').innerHTML='<div style="font-size:11px;color:var(--g400);text-align:center;padding:16px">Seleccioná dos productos para comparar</div>';return;}
+  const a=ALL[iA], b=ALL[iB];
+  const fields=[
+    ['Costo',$n(a._c),$n(b._c),a._c<b._c],
+    ['Precio venta',$n(a._p),$n(b._p),a._p>b._p],
+    ['Ganancia/ud',$n(a.netGain),$n(b.netGain),a.netGain>b.netGain],
+    ['Margen %',pc(a.margin),pc(b.margin),a.margin>b.margin],
+    ['ROI %',pc(a.roi),pc(b.roi),a.roi>b.roi],
+    ['Stock',a._s,b._s,a._s>b._s],
+    ['Val. inventario',$n(a.invVal),$n(b.invVal),false],
+    ['G. potencial',$n(a.potential),$n(b.potential),a.potential>b.potential],
+  ];
+  document.getElementById('compareResult').innerHTML=`
+    <div class="compare-grid">
+      <div class="compare-col">
+        <h3>${a['PRODUCTO']} ${a['SABOR']}</h3>
+        ${fields.map(([lbl,va,,winA])=>`<div class="compare-field"><span>${lbl}</span><span class="${winA?'winner':''}">${va}</span></div>`).join('')}
+      </div>
+      <div class="compare-col">
+        <h3>${b['PRODUCTO']} ${b['SABOR']}</h3>
+        ${fields.map(([lbl,,vb,winA])=>`<div class="compare-field"><span>${lbl}</span><span class="${!winA&&lbl!=='Val. inventario'?'winner':''}">${vb}</span></div>`).join('')}
+      </div>
+    </div>
+    <div style="margin-top:10px;font-size:11px;color:var(--g400);text-align:center"><span style="color:var(--gr);font-weight:600">Verde</span> = mejor valor en ese campo</div>`;
+}
+
+/* ══════════════════════════════════════
+   EVENTOS GLOBALES
+══════════════════════════════════════ */
+function showPage(id, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-a').forEach(a=>a.classList.remove('on'));
+  document.getElementById('p-'+id).classList.add('active');
+  el.classList.add('on');
+  const titles={dashboard:'Dashboard',inventario:'Inventario',estadisticas:'Estadísticas'};
+  document.getElementById('topTitle').textContent=titles[id]||id;
+}
+function setTab(el,t){
+  activeTab=t;
+  document.querySelectorAll('#tbToolbar .tab').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on'); applyFilters(); renderTable();
+}
+function doSort(k){if(sk===k)sd*=-1;else{sk=k;sd=-1;}applyFilters();renderTable();}
+function doSearch(v){sq=v.toLowerCase();applyFilters();renderTable();}
+function setCat(v){cq=v;applyFilters();renderTable();}
+function doInvSearch(v){invSq=v.toLowerCase();renderInvTable();}
+function setInvCat(v){invCq=v;renderInvTable();}
+function setInvSort(v){invSk=v;invSd=-1;renderInvTable();}
+function setInvSortCol(k){if(invSk===k)invSd*=-1;else{invSk=k;invSd=-1;}renderInvTable();}
+function setInvFilter(el,f){
+  invFilter=f;
+  document.querySelectorAll('[id^="if-"],.inv-filters .tab').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on'); renderInvTable();
+}
+
+function exportCSV(){
+  if(!ALL.length) return alert('Sin datos para exportar.');
+  const cols=[['PRODUCTO','Producto'],['SABOR','Sabor'],['CATEGORÍA','Categoría'],['_c','Costo'],['_p','Precio'],['_s','Stock'],['ESTADO','Estado'],['margin','Margen%'],['netGain','Gan/ud'],['invVal','Val.inv'],['potential','G.potencial'],['roi','ROI%']];
+  const hdr=cols.map(c=>c[1]).join(',');
+  const rows=ALL.map(p=>cols.map(([k])=>{
+    let v=p[k]!==undefined?p[k]:'';
+    if(['margin','netGain','invVal','potential','roi','_c','_p','_s'].includes(k)) v=Math.round(v);
+    return'"'+String(v).replace(/"/g,'""')+'"';
   }).join(','));
-  const csv = '\uFEFF' + [hdr, ...rows].join('\n');
-  const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-  a.download = 'vapedash_' + new Date().toISOString().slice(0,10) + '.csv';
+  const csv='\uFEFF'+[hdr,...rows].join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='vapedash_'+new Date().toISOString().slice(0,10)+'.csv';
   a.click();
 }
 
-/* ── INIT ────────────────────────────────── */
+// Cerrar modales al click fuera
+document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e=>{if(e.target===bg) bg.classList.remove('open');}));
+
 loadData();
-setInterval(loadData, 60000);
+setInterval(loadData,60000);
 </script>
 </body>
 </html>

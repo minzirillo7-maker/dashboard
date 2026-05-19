@@ -1,416 +1,859 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-[#09090b]">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vape Crew — Panel Operativo</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            dark: '#09090b',
-                            card: '#18181b',
-                            border: '#27272a',
-                            accent: '#10b981'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        scrollbar-width: thin;
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #09090b; }
-        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VapeDash — Panel de Gestión</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --white:    #ffffff;
+  --gray-50:  #f7f8fa;
+  --gray-100: #eef0f4;
+  --gray-200: #dde1e9;
+  --gray-300: #c4cad6;
+  --gray-400: #8f99ab;
+  --gray-500: #5d6a7e;
+  --gray-700: #2d3748;
+  --gray-900: #111827;
+  --blue:     #1a56db;
+  --blue-lt:  #e8f0fe;
+  --blue-md:  #3b82f6;
+  --green:    #0e7c3a;
+  --green-lt: #e6f4ec;
+  --green-md: #22c55e;
+  --amber:    #92530a;
+  --amber-lt: #fef3e2;
+  --amber-md: #f59e0b;
+  --red:      #b91c1c;
+  --red-lt:   #fef2f2;
+  --red-md:   #ef4444;
+  --border:   #dde1e9;
+  --font:     'IBM Plex Sans', sans-serif;
+  --mono:     'IBM Plex Mono', monospace;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow:    0 2px 8px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.05);
+}
+
+html, body {
+  min-height: 100vh;
+  background: var(--gray-50);
+  color: var(--gray-900);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ── LAYOUT ─────────────────────────────── */
+.layout { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 224px;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+/* ── SIDEBAR ────────────────────────────── */
+.sb-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sb-brand-icon {
+  width: 34px; height: 34px;
+  background: var(--blue);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 17px; flex-shrink: 0;
+}
+.sb-brand-name { font-size: 15px; font-weight: 600; color: var(--gray-900); }
+.sb-brand-sub  { font-size: 10px; color: var(--gray-400); font-family: var(--mono); margin-top: 1px; }
+
+.sb-section { padding: 12px 0 4px; }
+.sb-section-label {
+  font-size: 10px; font-weight: 600; color: var(--gray-400);
+  letter-spacing: .8px; text-transform: uppercase;
+  padding: 0 16px 6px;
+}
+.sb-link {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 16px;
+  font-size: 13px; color: var(--gray-500);
+  cursor: pointer; border-left: 3px solid transparent;
+  transition: all .12s;
+}
+.sb-link:hover { color: var(--gray-900); background: var(--gray-50); }
+.sb-link.active { color: var(--blue); background: var(--blue-lt); border-left-color: var(--blue); font-weight: 500; }
+.sb-link i { font-size: 16px; }
+
+.sb-footer {
+  margin-top: auto;
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+}
+.sb-sync {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--gray-500);
+}
+.sync-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green-md); flex-shrink: 0;
+  animation: pulse 2.5s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ── TOPBAR ─────────────────────────────── */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 24px;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+  flex-wrap: wrap; gap: 10px;
+  box-shadow: var(--shadow-sm);
+}
+.topbar-title { font-size: 16px; font-weight: 600; color: var(--gray-900); }
+.topbar-right  { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+.search {
+  display: flex; align-items: center; gap: 7px;
+  border: 1px solid var(--border);
+  border-radius: 6px; padding: 6px 11px;
+  background: var(--white);
+}
+.search input {
+  border: none; outline: none;
+  font-size: 13px; font-family: var(--font);
+  color: var(--gray-900); width: 190px;
+  background: transparent;
+}
+.search input::placeholder { color: var(--gray-400); }
+.search i { color: var(--gray-400); font-size: 15px; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 13px; border-radius: 6px;
+  font-size: 12px; font-weight: 500;
+  cursor: pointer; font-family: var(--font);
+  border: 1px solid var(--border);
+  background: var(--white); color: var(--gray-700);
+  transition: all .12s; text-decoration: none;
+}
+.btn:hover { background: var(--gray-50); border-color: var(--gray-300); }
+.btn.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
+.btn.primary:hover { background: #1648c0; }
+select.btn { cursor: pointer; }
+
+/* ── CONTENT ────────────────────────────── */
+.content { padding: 24px; flex: 1; }
+
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
+}
+.page-header h1 { font-size: 18px; font-weight: 600; color: var(--gray-900); }
+.page-header p  { font-size: 12px; color: var(--gray-400); font-family: var(--mono); margin-top: 2px; }
+
+/* ── ALERTS ─────────────────────────────── */
+.alert {
+  display: flex; align-items: flex-start; gap: 10px;
+  border-radius: 6px; padding: 10px 14px;
+  margin-bottom: 8px; font-size: 12.5px; line-height: 1.5;
+}
+.alert.danger { background: var(--red-lt); border: 1px solid #fca5a5; color: var(--red); }
+.alert.warning { background: var(--amber-lt); border: 1px solid #fcd34d; color: var(--amber); }
+.alert i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── KPI CARDS ──────────────────────────── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  gap: 12px; margin-bottom: 22px;
+}
+.kpi-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+.kpi-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.kpi-card.blue::before  { background: var(--blue); }
+.kpi-card.green::before { background: var(--green-md); }
+.kpi-card.amber::before { background: var(--amber-md); }
+.kpi-card.red::before   { background: var(--red-md); }
+.kpi-card.teal::before  { background: #0891b2; }
+
+.kpi-icon {
+  width: 32px; height: 32px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; margin-bottom: 10px;
+}
+.kpi-icon.blue  { background: var(--blue-lt); color: var(--blue); }
+.kpi-icon.green { background: var(--green-lt); color: var(--green); }
+.kpi-icon.amber { background: var(--amber-lt); color: var(--amber); }
+.kpi-icon.red   { background: var(--red-lt); color: var(--red); }
+.kpi-icon.teal  { background: #e0f2fe; color: #0891b2; }
+
+.kpi-label { font-size: 11px; color: var(--gray-400); font-family: var(--mono); margin-bottom: 4px; letter-spacing: .2px; }
+.kpi-value { font-size: 22px; font-weight: 600; color: var(--gray-900); line-height: 1.1; }
+.kpi-sub   { font-size: 11px; color: var(--gray-400); margin-top: 3px; }
+
+/* ── SECTION TITLE ──────────────────────── */
+.sec-title {
+  font-size: 12px; font-weight: 600;
+  color: var(--gray-500); letter-spacing: .5px;
+  text-transform: uppercase; margin-bottom: 12px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+
+/* ── CHARTS ROW ─────────────────────────── */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 16px; margin-bottom: 22px;
+}
+.chart-panel {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+}
+.chart-panel-title { font-size: 13px; font-weight: 600; color: var(--gray-900); margin-bottom: 2px; }
+.chart-panel-sub   { font-size: 11px; color: var(--gray-400); font-family: var(--mono); margin-bottom: 14px; }
+.legend-row { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 10px; }
+.leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--gray-500); }
+.leg-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── TABLE ──────────────────────────────── */
+.table-panel {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 22px;
+  overflow: hidden;
+}
+.table-toolbar {
+  display: flex; align-items: center; gap: 6px;
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.tab-btn {
+  font-size: 12px; padding: 5px 11px;
+  border-radius: 5px; cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--white); color: var(--gray-500);
+  font-family: var(--font); transition: all .12s;
+}
+.tab-btn:hover { border-color: var(--gray-300); color: var(--gray-700); }
+.tab-btn.on { background: var(--blue-lt); color: var(--blue); border-color: #93c5fd; font-weight: 500; }
+
+.tbl-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 800px; }
+thead tr { background: var(--gray-50); border-bottom: 2px solid var(--border); }
+thead th {
+  font-size: 11px; font-weight: 600; color: var(--gray-500);
+  font-family: var(--mono); letter-spacing: .3px;
+  text-align: left; padding: 10px 14px;
+  white-space: nowrap; cursor: pointer; user-select: none;
+}
+thead th:hover { color: var(--gray-900); }
+thead th.asc::after  { content: ' ↑'; color: var(--blue); }
+thead th.desc::after { content: ' ↓'; color: var(--blue); }
+tbody tr { border-bottom: 1px solid var(--gray-100); transition: background .1s; cursor: pointer; }
+tbody tr:hover { background: var(--gray-50); }
+tbody tr:last-child { border-bottom: none; }
+td { padding: 10px 14px; font-size: 12.5px; vertical-align: middle; }
+.prod-name   { font-size: 13px; font-weight: 500; color: var(--gray-900); }
+.prod-flavor { font-size: 11px; color: var(--gray-400); font-family: var(--mono); margin-top: 1px; }
+
+.badge {
+  display: inline-flex; align-items: center;
+  font-size: 10.5px; padding: 2px 8px;
+  border-radius: 4px; font-weight: 500;
+  font-family: var(--mono); white-space: nowrap;
+}
+.bg-green  { background: var(--green-lt); color: var(--green); }
+.bg-amber  { background: var(--amber-lt); color: var(--amber); }
+.bg-red    { background: var(--red-lt); color: var(--red); }
+.bg-blue   { background: var(--blue-lt); color: var(--blue); }
+
+.mono-val { font-family: var(--mono); font-size: 12px; }
+.bar-wrap  { display: flex; align-items: center; gap: 8px; }
+.bar-track { flex: 1; height: 4px; background: var(--gray-100); border-radius: 4px; min-width: 55px; }
+.bar-fill  { height: 100%; border-radius: 4px; }
+
+.img-th  {
+  width: 38px; height: 38px; border-radius: 6px;
+  border: 1px solid var(--border); object-fit: cover; display: block;
+  background: var(--gray-100);
+}
+.img-ph  {
+  width: 38px; height: 38px; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--gray-100);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gray-300); font-size: 16px;
+}
+
+/* ── BOTTOM GRID ────────────────────────── */
+.bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.rank-panel {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 16px 18px;
+  box-shadow: var(--shadow-sm);
+}
+.rank-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid var(--gray-100);
+}
+.rank-row:last-child { border-bottom: none; }
+.rank-n  { font-size: 11px; color: var(--gray-400); font-family: var(--mono); width: 16px; flex-shrink: 0; }
+.rank-info { flex: 1; min-width: 0; }
+.rank-name { font-size: 12.5px; font-weight: 500; color: var(--gray-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rank-hint { font-size: 11px; color: var(--gray-400); font-family: var(--mono); margin-top: 1px; }
+.rank-val  { font-size: 12px; font-weight: 600; font-family: var(--mono); flex-shrink: 0; }
+
+/* ── LOADING / ERROR ────────────────────── */
+.loading-state {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 80px 20px; gap: 14px;
+}
+.spinner {
+  width: 32px; height: 32px;
+  border: 2px solid var(--gray-200); border-top-color: var(--blue);
+  border-radius: 50%; animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.err-box {
+  margin: 24px;
+  background: var(--red-lt); border: 1px solid #fca5a5;
+  border-radius: 8px; padding: 18px 20px;
+}
+.err-box strong { color: var(--red); font-size: 14px; }
+.err-box p { font-size: 12px; color: var(--gray-700); margin-top: 7px; line-height: 1.6; }
+
+/* ── FOOTER ─────────────────────────────── */
+.footer {
+  text-align: center; padding: 14px;
+  font-size: 11px; color: var(--gray-400); font-family: var(--mono);
+  border-top: 1px solid var(--border); background: var(--white);
+}
+
+@media (max-width: 920px) {
+  .sidebar { display: none; }
+  .charts-grid { grid-template-columns: 1fr; }
+  .bottom-grid  { grid-template-columns: 1fr; }
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .content { padding: 16px; }
+}
+</style>
 </head>
-<body class="h-full text-zinc-100 font-sans antialiased" x-data="dashboard()" x-init="initApp()">
+<body>
+<div class="layout">
 
-    <div class="min-h-full flex flex-col">
-        <header class="border-b border-zinc-800 bg-[#09090b]/80 backdrop-blur-md sticky top-0 z-40">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="h-8 w-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-sm">VC</div>
-                    <span class="font-semibold tracking-tight text-zinc-200 text-lg">Vape Crew <span class="text-zinc-500 font-normal text-xs ml-1">Admin OS</span></span>
-                </div>
-                
-                <div class="flex items-center gap-2 max-w-xs sm:max-w-md w-full justify-end">
-                    <div class="relative w-full max-w-xs">
-                        <input type="password" 
-                               x-model="sheetUrl" 
-                               @change="saveUrl()"
-                               placeholder="Pegar URL de Apps Script (/exec)..." 
-                               class="w-full bg-[#18181b] border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors">
-                    </div>
-                    <button @click="fetchData()" class="p-1.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-zinc-300 transition-colors" :disabled="loading" title="Sincronizar ahora">
-                        <i data-lucide="refresh-cw" class="w-4 h-4" :class="loading ? 'animate-spin text-emerald-400' : ''"></i>
-                    </button>
-                </div>
-            </div>
-        </header>
+<!-- ══ SIDEBAR ══════════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-brand-icon"><i class="ti ti-chart-bar"></i></div>
+    <div>
+      <div class="sb-brand-name">VapeDash</div>
+      <div class="sb-brand-sub">GESTIÓN DE NEGOCIO</div>
+    </div>
+  </div>
 
-        <main class="flex-1 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 w-full">
-            
-            <template x-if="!sheetUrl">
-                <div class="p-8 border border-dashed border-zinc-800 rounded-2xl text-center bg-[#18181b]/30">
-                    <i data-lucide="link" class="w-8 h-8 text-zinc-600 mx-auto mb-3"></i>
-                    <h3 class="text-base font-medium text-zinc-300 mb-1">Falta vincular la base de datos</h3>
-                    <p class="text-xs text-zinc-500 max-w-md mx-auto mb-4">Pega la URL de tu Web App de Google Apps Script (la que termina en <code>/exec</code>) en el campo superior derecho para activar el panel operativo.</p>
-                </div>
-            </template>
+  <div class="sb-section">
+    <div class="sb-section-label">Principal</div>
+    <div class="sb-link active"><i class="ti ti-layout-dashboard"></i> Dashboard</div>
+    <div class="sb-link" onclick="scrollTo(0,0)"><i class="ti ti-package"></i> Inventario</div>
+    <div class="sb-link" onclick="scrollTo(0,0)"><i class="ti ti-chart-pie"></i> Estadísticas</div>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-label">Herramientas</div>
+    <div class="sb-link" onclick="loadData()"><i class="ti ti-refresh"></i> Actualizar datos</div>
+    <div class="sb-link" onclick="exportCSV()"><i class="ti ti-file-download"></i> Exportar CSV</div>
+    <div class="sb-link" onclick="window.open('https://docs.google.com/spreadsheets','_blank')"><i class="ti ti-brand-google"></i> Abrir Google Sheets</div>
+  </div>
 
-            <template x-if="error && sheetUrl">
-                <div class="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-sm flex flex-col gap-2">
-                    <div class="flex items-center gap-3 font-semibold">
-                        <i data-lucide="alert-circle" class="w-5 h-5 shrink-0 text-rose-400"></i>
-                        <span x-text="error"></span>
-                    </div>
-                    <div class="text-xs text-zinc-400 pl-8">
-                        💡 <strong>Nota:</strong> Si el error es de red o bloqueo, comprueba que al implementar tu Apps Script seleccionaras: <em>Ejecutar como: "Yo"</em> y <em>Quién tiene acceso: "Cualquiera"</em>.
-                    </div>
-                </div>
-            </template>
+  <div class="sb-footer">
+    <div class="sb-sync">
+      <span class="sync-dot" id="syncDot"></span>
+      <span id="syncText">Cargando...</span>
+    </div>
+    <div style="font-size:11px;color:var(--gray-300);margin-top:4px;font-family:var(--mono)" id="syncTime"></div>
+  </div>
+</aside>
 
-            <div x-show="products.length > 0" x-transition.opacity>
-                
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                    <div class="bg-[#18181b] border border-zinc-800/80 rounded-xl p-5">
-                        <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Valor Inventario (Costo)</div>
-                        <div class="text-2xl font-semibold tracking-tight text-zinc-100" x-text="formatCurrency(metrics.inventoryValue)">$0</div>
-                        <div class="text-xs text-zinc-400 mt-2">
-                            <span class="text-emerald-400 font-medium" x-text="products.length">0</span> productos activos
-                        </div>
-                    </div>
-                    <div class="bg-[#18181b] border border-zinc-800/80 rounded-xl p-5">
-                        <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Ganancia Potencial</div>
-                        <div class="text-2xl font-semibold tracking-tight text-emerald-400" x-text="formatCurrency(metrics.potentialProfit)">$0</div>
-                        <div class="text-xs text-zinc-500 mt-2">Margen total proyectado</div>
-                    </div>
-                    <div class="bg-[#18181b] border border-zinc-800/80 rounded-xl p-5">
-                        <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Margen Promedio</div>
-                        <div class="text-2xl font-semibold tracking-tight text-zinc-100" x-text="metrics.avgMargin.toFixed(1) + '%'">0%</div>
-                        <div class="text-xs text-zinc-400 mt-2">Rentabilidad por unidad</div>
-                    </div>
-                    <div class="bg-[#18181b] border border-zinc-800/80 rounded-xl p-5">
-                        <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Unidades Totales</div>
-                        <div class="text-2xl font-semibold tracking-tight text-zinc-100" x-text="metrics.totalStock + ' u.'">0 u.</div>
-                        <div class="text-xs mt-2 flex gap-2">
-                            <span class="text-rose-400" x-text="metrics.outOfStock + ' Agotados'"></span>
-                            <span class="text-amber-400" x-text="metrics.lowStock + ' Bajos'"></span>
-                        </div>
-                    </div>
-                </div>
+<!-- ══ MAIN ══════════════════════════════════════════ -->
+<div class="main">
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                    <div class="bg-[#18181b] border border-zinc-800 rounded-xl p-5 lg:col-span-2">
-                        <h3 class="text-sm font-medium text-zinc-300 mb-4">Capital vs Ganancia por Categoría</h3>
-                        <div class="h-64 relative">
-                            <canvas id="categoryChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="bg-[#18181b] border border-zinc-800 rounded-xl p-5">
-                        <h3 class="text-sm font-medium text-zinc-300 mb-4">Estado del Stock General</h3>
-                        <div class="h-64 flex items-center justify-center relative">
-                            <canvas id="stockPieChart"></canvas>
-                        </div>
-                    </div>
-                </div>
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-title">Panel de Control — Stock &amp; Ganancias</div>
+    <div class="topbar-right">
+      <div class="search">
+        <i class="ti ti-search"></i>
+        <input type="text" id="searchInput" placeholder="Buscar producto o sabor..." oninput="doSearch(this.value)">
+      </div>
+      <select class="btn" id="catSel" onchange="setCat(this.value)">
+        <option value="">Todas las categorías</option>
+      </select>
+      <button class="btn primary" onclick="loadData()"><i class="ti ti-refresh"></i> Actualizar</button>
+      <button class="btn" onclick="exportCSV()"><i class="ti ti-download"></i> CSV</button>
+    </div>
+  </div>
 
-                <div class="bg-[#18181b] border border-zinc-800 rounded-xl overflow-hidden">
-                    <div class="p-5 border-b border-zinc-800 bg-[#1c1c1f]/50 flex flex-col sm:flex-row gap-4 items-center justify-between">
-                        <div class="relative w-full sm:w-72">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-500">
-                                <i data-lucide="search" class="w-4 h-4"></i>
-                            </span>
-                            <input type="text" x-model="searchQuery" placeholder="Buscar producto o sabor..." class="w-full bg-[#09090b] border border-zinc-800 rounded-lg pl-9 pr-4 py-2 text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-700">
-                        </div>
-                        
-                        <div class="flex flex-wrap w-full sm:w-auto gap-2 justify-end">
-                            <select x-model="categoryFilter" class="bg-[#09090b] border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:border-zinc-700">
-                                <option value="">Todas las Categorías</option>
-                                <template x-for="cat in categories" :key="cat">
-                                    <option :value="cat" x-text="cat"></option>
-                                </template>
-                            </select>
-
-                            <select x-model="statusFilter" class="bg-[#09090b] border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:border-zinc-700">
-                                <option value="">Todos los Estados</option>
-                                <option value="SIN STOCK">Sin Stock</option>
-                                <option value="STOCK BAJO">Stock Bajo</option>
-                                <option value="STOCK OPTIMO">Stock Óptimo</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="border-b border-zinc-800 text-zinc-400 text-xs font-medium uppercase bg-[#1c1c1f]/20">
-                                    <th class="py-3.5 px-4 cursor-pointer hover:text-white" @click="sort('id')">ID</th>
-                                    <th class="py-3.5 px-4 cursor-pointer hover:text-white" @click="sort('name')">Producto / Sabor</th>
-                                    <th class="py-3.5 px-4 cursor-pointer hover:text-white" @click="sort('category')">Categoría</th>
-                                    <th class="py-3.5 px-4 text-right cursor-pointer hover:text-white" @click="sort('cost')">Costo</th>
-                                    <th class="py-3.5 px-4 text-right cursor-pointer hover:text-white" @click="sort('salePrice')">P. Venta</th>
-                                    <th class="py-3.5 px-4 text-center cursor-pointer hover:text-white" @click="sort('stock')">Stock</th>
-                                    <th class="py-3.5 px-4 text-center">Estado</th>
-                                    <th class="py-3.5 px-4 text-right">Margen</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-zinc-800/50 text-sm">
-                                <template x-for="p in filteredProducts()" :key="p.id">
-                                    <tr class="hover:bg-zinc-800/30 transition-colors">
-                                        <td class="py-3.5 px-4 text-zinc-500 font-mono text-xs" x-text="p.id"></td>
-                                        <td class="py-3.5 px-4">
-                                            <div class="font-medium text-zinc-200" x-text="p.name"></div>
-                                            <div class="text-xs text-zinc-400" x-text="p.flavor"></div>
-                                        </td>
-                                        <td class="py-3.5 px-4 text-zinc-400 text-xs" x-text="p.category"></td>
-                                        <td class="py-3.5 px-4 text-right font-mono text-zinc-400" x-text="formatCurrency(p.cost)"></td>
-                                        <td class="py-3.5 px-4 text-right font-mono text-zinc-200" x-text="formatCurrency(p.salePrice)"></td>
-                                        <td class="py-3.5 px-4 text-center font-mono font-medium" :class="p.stock === 0 ? 'text-rose-400' : p.stock <= 2 ? 'text-amber-400' : 'text-zinc-300'" x-text="p.stock"></td>
-                                        <td class="py-3.5 px-4 text-center">
-                                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium"
-                                                  :class="p.stock === 0 ? 'bg-rose-500/10 text-rose-400' : p.stock <= 2 ? 'bg-amber-500/10 text-amber-400' : 'bg-emerald-500/10 text-emerald-400'">
-                                                <span class="w-1.5 h-1.5 rounded-full" :class="p.stock === 0 ? 'bg-rose-400' : p.stock <= 2 ? 'bg-amber-400' : 'bg-emerald-400'"></span>
-                                                <span x-text="p.stock === 0 ? 'Sin Stock' : p.stock <= 2 ? 'Bajo' : 'Óptimo'"></span>
-                                            </span>
-                                        </td>
-                                        <td class="py-3.5 px-4 text-right font-mono text-emerald-400 font-medium" x-text="p.salePrice > 0 ? ((p.salePrice - p.cost) / p.salePrice * 100).toFixed(0) + '%' : '0%'"></td>
-                                    </tr>
-                                </template>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </main>
+  <!-- Content -->
+  <div class="content">
+    <div class="page-header">
+      <div>
+        <h1>Resumen general</h1>
+        <p id="headerSub">Conectando a Google Sheets...</p>
+      </div>
     </div>
 
-    <script>
-        function dashboard() {
-            return {
-                sheetUrl: '',
-                products: [],
-                categories: [],
-                loading: false,
-                error: null,
-                searchQuery: '',
-                categoryFilter: '',
-                statusFilter: '',
-                sortKey: 'id',
-                sortAsc: true,
-                charts: {},
-                metrics: { inventoryValue: 0, potentialProfit: 0, avgMargin: 0, totalStock: 0, outOfStock: 0, lowStock: 0 },
+    <div id="appRoot">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <div style="font-size:13px;color:var(--gray-500)">Cargando datos desde Google Sheets...</div>
+      </div>
+    </div>
+  </div>
 
-                initApp() {
-                    this.sheetUrl = localStorage.getItem('vc_sheet_url') || '';
-                    if (this.sheetUrl) {
-                        this.fetchData();
-                    }
-                    setTimeout(() => lucide.createIcons(), 150);
-                },
+  <div class="footer" id="footerBar">VapeDash · Google Sheets sync · Actualización automática cada 60 seg</div>
+</div><!-- /main -->
+</div><!-- /layout -->
 
-                saveUrl() {
-                    localStorage.setItem('vc_sheet_url', this.sheetUrl);
-                    this.fetchData();
-                },
+<script>
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwiJQnEG8DaPdTtXeP6vKKKB813pqGNul6LLXQnf6_-D1j4ESTPfcCm4p4Xf87fASn7aA/exec';
 
-                async fetchData() {
-                    if (!this.sheetUrl) return;
-                    this.loading = true;
-                    this.error = null;
-                    
-                    try {
-                        const response = await fetch(this.sheetUrl);
-                        if (!response.ok) throw new Error("La URL de Google Apps Script no respondió correctamente.");
-                        
-                        const resData = await response.json();
-                        
-                        if (resData.status === "error") {
-                          throw new Error(`Error en el Script: ${resData.message}`);
-                        }
-                        
-                        const rawProducts = resData.productos || [];
-                        
-                        // PARSER ROBUSTO PARA TU FORMATO EXACTO DE APPSCRIPT
-                        this.products = rawProducts.map((p, idx) => {
-                            // Buscador de llaves tolerante a acentos o espacios extras de tus columnas
-                            const extractField = (options) => {
-                                const key = Object.keys(p).find(k => {
-                                    const cleanKey = k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-                                    return options.includes(cleanKey);
-                                });
-                                return key ? p[key] : undefined;
-                            };
+let ALL = [], filtered = [];
+let sortKey = 'potential', sortDir = -1;
+let activeTab = 'all', searchQ = '', catQ = '';
+let chartMargen = null, chartEstado = null;
 
-                            // Limpiador estricto de dinero (remueve $, puntos de miles o espacios)
-                            const cleanMoney = (val) => {
-                                if (val === undefined || val === null || val === "") return 0;
-                                if (typeof val === 'number') return val;
-                                return Number(String(val).replace(/[^0-9]/g, '')) || 0;
-                            };
+/* ── PARSE ───────────────────────────────── */
+function parsePesos(v) {
+  if (typeof v === 'number') return v;
+  if (!v) return 0;
+  return parseFloat(String(v).replace(/[$\s]/g,'').replace(/\./g,'').replace(',','.')) || 0;
+}
+function calc(p) {
+  const costo   = parsePesos(p['COSTO']);
+  const precio  = parsePesos(p['PRECIO VENTA']);
+  const stock   = parseInt(p['STOCK ACTUAL']) || 0;
+  const margin  = precio > 0 ? (precio - costo) / precio * 100 : 0;
+  const netGain = precio - costo;
+  const invVal  = stock * costo;
+  const potential = stock * netGain;
+  const roi     = costo > 0 ? (precio - costo) / costo * 100 : 0;
+  return { ...p, _c: costo, _p: precio, _s: stock, margin, netGain, invVal, potential, roi };
+}
+function status(p) {
+  const st = String(p['ESTADO'] || '').toUpperCase();
+  if (st.includes('SIN') || p._s === 0) return 'sin';
+  if (st.includes('BAJO') || p._s <= 3) return 'bajo';
+  return 'ok';
+}
 
-                            return {
-                                id: Number(extractField(['id']) || (idx + 1)),
-                                name: String(extractField(['producto', 'articulo']) || 'Sin Nombre').trim(),
-                                flavor: String(extractField(['sabor', 'gusto']) || 'Original').trim(),
-                                salePrice: cleanMoney(extractField(['precio venta', 'venta'])),
-                                cost: cleanMoney(extractField(['costo', 'cost'])),
-                                stock: Number(extractField(['stock actual', 'stock', 'cantidad']) || 0),
-                                category: String(extractField(['categoria', 'tipo']) || 'General').trim()
-                            };
-                        });
+/* ── FORMAT ──────────────────────────────── */
+const $  = n => '$' + Math.round(n).toLocaleString('es-AR');
+const pct = n => Math.round(n) + '%';
+const num = n => Math.round(n).toLocaleString('es-AR');
 
-                        this.extractCategories();
-                        this.calculateMetrics();
-                        
-                        // Renderizar gráficos sincronizado con el DOM de Alpine
-                        this.$nextTick(() => this.renderCharts());
+/* ── LOAD ────────────────────────────────── */
+async function loadData() {
+  setSyncState('loading');
+  try {
+    const r = await fetch(SHEET_URL + '?t=' + Date.now());
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const json = await r.json();
+    let rows = [];
+    if (Array.isArray(json)) rows = json;
+    else if (json.productos) rows = json.productos;
+    else if (json.data) rows = json.data;
+    else { const k = Object.values(json).find(v => Array.isArray(v)); if (k) rows = k; }
+    rows = rows.filter(r => r['PRODUCTO'] && String(r['PRODUCTO']).trim());
+    if (!rows.length) throw new Error('No se encontraron filas con datos en la pestaña STOCK.');
+    ALL = rows.map(calc);
+    filtered = [...ALL];
+    buildCatFilter();
+    renderAll();
+    setSyncState('ok');
+    const now = new Date();
+    document.getElementById('syncTime').textContent = now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) + ' hs';
+    document.getElementById('headerSub').textContent =
+      ALL.length + ' productos · Actualizado ' + now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+  } catch(e) {
+    setSyncState('error');
+    document.getElementById('appRoot').innerHTML = `
+      <div class="err-box">
+        <strong><i class="ti ti-alert-circle"></i> No se pudo conectar con Google Sheets</strong>
+        <p>${e.message}<br><br>
+        Verificá en Apps Script → Implementar → Administrar implementaciones → Acceso: <b>"Cualquier usuario (anónimo)"</b></p>
+        <button class="btn" style="margin-top:12px" onclick="loadData()"><i class="ti ti-refresh"></i> Reintentar</button>
+      </div>`;
+  }
+}
 
-                    } catch (err) {
-                        this.error = `Error: ${err.message}. Comprueba que la URL sea la de ejecución (/exec) y que el script esté publicado correctamente.`;
-                        console.error(err);
-                    } finally {
-                        this.loading = false;
-                        setTimeout(() => lucide.createIcons(), 50);
-                    }
-                },
+function setSyncState(s) {
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncText');
+  if (s === 'loading') { dot.style.background='#f59e0b'; txt.textContent='Sincronizando...'; }
+  else if (s === 'ok')  { dot.style.background='#22c55e'; txt.textContent='Conectado'; }
+  else                  { dot.style.background='#ef4444'; txt.textContent='Sin conexión'; }
+}
 
-                extractCategories() {
-                    const cats = this.products.map(p => p.category).filter(c => c && c !== "");
-                    this.categories = [...new Set(cats)];
-                },
+function buildCatFilter() {
+  const cats = [...new Set(ALL.map(p => p['CATEGORÍA']||'').filter(Boolean))];
+  const sel = document.getElementById('catSel');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Todas las categorías</option>' +
+    cats.map(c => `<option value="${c}">${c}</option>`).join('');
+  sel.value = cur;
+}
 
-                calculateMetrics() {
-                    let totalCost = 0, totalProfit = 0, totalMarginSum = 0, stockTotal = 0, outStock = 0, lowStock = 0;
-                    
-                    this.products.forEach(p => {
-                        totalCost += (p.stock * p.cost);
-                        totalProfit += (p.stock * (p.salePrice - p.cost));
-                        stockTotal += p.stock;
-                        
-                        if (p.stock === 0) outStock++;
-                        else if (p.stock <= 2) lowStock++;
-                        
-                        const margin = p.salePrice > 0 ? ((p.salePrice - p.cost) / p.salePrice) * 100 : 0;
-                        totalMarginSum += margin;
-                    });
+/* ── RENDER ALL ──────────────────────────── */
+function renderAll() {
+  document.getElementById('appRoot').innerHTML = `
+    <div id="alertsZone" style="margin-bottom:16px"></div>
+    <div class="kpi-row" id="kpiRow"></div>
+    <div class="charts-grid" id="chartsGrid"></div>
+    <div class="sec-title">Detalle de inventario</div>
+    <div class="table-panel">
+      <div class="table-toolbar" id="toolbar"></div>
+      <div class="tbl-scroll"><table><thead id="tHead"></thead><tbody id="tBody"></tbody></table></div>
+    </div>
+    <div class="bottom-grid" id="bottomGrid"></div>`;
+  renderAlerts();
+  renderKPIs();
+  renderCharts();
+  buildToolbar();
+  buildThead();
+  applyFilters();
+  renderTable();
+  renderRankings();
+}
 
-                    this.metrics = {
-                        inventoryValue: totalCost,
-                        potentialProfit: totalProfit,
-                        avgMargin: this.products.length > 0 ? (totalMarginSum / this.products.length) : 0,
-                        totalStock: stockTotal,
-                        outOfStock: outStock,
-                        lowStock: lowStock
-                    };
-                },
+/* ── ALERTS ──────────────────────────────── */
+function renderAlerts() {
+  const sin  = ALL.filter(p => status(p)==='sin');
+  const bajo = ALL.filter(p => status(p)==='bajo');
+  let h = '';
+  if (sin.length)
+    h += `<div class="alert danger"><i class="ti ti-alert-triangle"></i><div>
+      <strong>Sin stock (${sin.length} productos):</strong> ${sin.map(p=>p['PRODUCTO']+' '+p['SABOR']).join(' · ')}
+    </div></div>`;
+  if (bajo.length)
+    h += `<div class="alert warning"><i class="ti ti-alert-circle"></i><div>
+      <strong>Stock bajo (${bajo.length} productos):</strong> ${bajo.map(p=>p['PRODUCTO']+' '+p['SABOR']+' ('+p._s+' ud.)').join(' · ')}
+    </div></div>`;
+  document.getElementById('alertsZone').innerHTML = h;
+}
 
-                filteredProducts() {
-                    return this.products.filter(p => {
-                        const matchesSearch = p.name.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
-                                              p.flavor.toLowerCase().includes(this.searchQuery.toLowerCase());
-                        const matchesCat = this.categoryFilter === '' || p.category === this.categoryFilter;
-                        
-                        let matchesStatus = true;
-                        if (this.statusFilter === 'SIN STOCK') matchesStatus = p.stock === 0;
-                        else if (this.statusFilter === 'STOCK BAJO') matchesStatus = p.stock > 0 && p.stock <= 2;
-                        else if (this.statusFilter === 'STOCK OPTIMO') matchesStatus = p.stock > 2;
+/* ── KPIs ────────────────────────────────── */
+function renderKPIs() {
+  const inv  = ALL.reduce((a,p)=>a+p.invVal,0);
+  const pot  = ALL.reduce((a,p)=>a+p.potential,0);
+  const avgM = ALL.length ? ALL.reduce((a,p)=>a+p.margin,0)/ALL.length : 0;
+  const sinN = ALL.filter(p=>status(p)==='sin').length;
+  const bajN = ALL.filter(p=>status(p)==='bajo').length;
+  const stTot= ALL.reduce((a,p)=>a+p._s,0);
+  const topM = [...ALL].sort((a,b)=>b.margin-a.margin)[0];
 
-                        return matchesSearch && matchesCat && matchesStatus;
-                    }).sort((a, b) => {
-                        let valA = a[this.sortKey];
-                        let valB = b[this.sortKey];
-                        if (typeof valA === 'string') {
-                            return this.sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
-                        }
-                        return this.sortAsc ? valA - valB : valB - valA;
-                    });
-                },
+  const kpis = [
+    { icon:'ti-package',     cls:'blue',  label:'Total productos', value:ALL.length,    sub:stTot+' unidades en stock' },
+    { icon:'ti-currency-dollar', cls:'green', label:'Capital invertido', value:$(inv),  sub:'Costo total del stock' },
+    { icon:'ti-trending-up', cls:'teal',  label:'Ganancia potencial', value:$(pot),     sub:'Si vendés todo el stock' },
+    { icon:'ti-percent',     cls:'blue',  label:'Margen promedio',  value:pct(avgM),    sub:'Sobre todos los productos' },
+    { icon:'ti-alert-triangle', cls:'red', label:'Sin stock',        value:sinN,        sub:'Productos agotados' },
+    { icon:'ti-alert-circle', cls:'amber', label:'Stock bajo',       value:bajN,        sub:'≤ 3 unidades' },
+    { icon:'ti-star',        cls:'green', label:'Mejor margen',     value:topM?pct(topM.margin):'-', sub:topM?(topM['PRODUCTO']+' '+topM['SABOR']):'—' },
+    { icon:'ti-calculator',  cls:'teal',  label:'Mayor ganancia/ud', value:topM?$(topM.netGain):'-', sub:topM?'ROI '+Math.round(topM.roi)+'%':'—' },
+  ];
+  document.getElementById('kpiRow').innerHTML = kpis.map(k => `
+    <div class="kpi-card ${k.cls}">
+      <div class="kpi-icon ${k.cls}"><i class="ti ${k.icon}"></i></div>
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.value}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>`).join('');
+}
 
-                sort(key) {
-                    if (this.sortKey === key) {
-                        this.sortAsc = !this.sortAsc;
-                    } else {
-                        this.sortKey = key;
-                        this.sortAsc = true;
-                    }
-                },
+/* ── CHARTS ──────────────────────────────── */
+function renderCharts() {
+  document.getElementById('chartsGrid').innerHTML = `
+    <div class="chart-panel">
+      <div class="chart-panel-title">Ganancia potencial por producto</div>
+      <div class="chart-panel-sub">Stock actual × (Precio − Costo) — top 8 productos</div>
+      <div class="legend-row" id="leg1"></div>
+      <div style="position:relative;height:230px"><canvas id="ch1" role="img" aria-label="Ganancia potencial por producto">Gráfico de barras</canvas></div>
+    </div>
+    <div class="chart-panel">
+      <div class="chart-panel-title">Estado del inventario</div>
+      <div class="chart-panel-sub">Distribución por disponibilidad</div>
+      <div class="legend-row" id="leg2"></div>
+      <div style="position:relative;height:230px"><canvas id="ch2" role="img" aria-label="Estado del inventario">Gráfico de dona</canvas></div>
+    </div>`;
 
-                formatCurrency(value) {
-                    return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(value);
-                },
+  const top8 = [...ALL].sort((a,b)=>b.potential-a.potential).slice(0,8);
+  const barColors = top8.map(p => {
+    const s = status(p);
+    return s==='sin'?'#ef444488':s==='bajo'?'#f59e0b99':'#1a56db99';
+  });
+  const borderColors = top8.map(p => {
+    const s = status(p);
+    return s==='sin'?'#ef4444':s==='bajo'?'#f59e0b':'#1a56db';
+  });
 
-                renderCharts() {
-                    const canvasBar = document.getElementById('categoryChart');
-                    const canvasPie = document.getElementById('stockPieChart');
-                    if (!canvasBar || !canvasPie) return;
+  if (chartMargen) chartMargen.destroy();
+  chartMargen = new Chart(document.getElementById('ch1'), {
+    type: 'bar',
+    data: {
+      labels: top8.map(p => (p['PRODUCTO']+' '+p['SABOR']).slice(0,22)),
+      datasets: [{
+        label: 'Gan. potencial',
+        data: top8.map(p => p.potential),
+        backgroundColor: barColors,
+        borderColor: borderColors,
+        borderWidth: 1.5,
+        borderRadius: 4,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: v => $(v.raw) } } },
+      scales: {
+        x: { ticks: { color:'#8f99ab', font:{size:9} }, grid: { color:'#eef0f4' } },
+        y: { ticks: { color:'#8f99ab', font:{size:9}, callback: v => '$'+Math.round(v/1000)+'k' }, grid: { color:'#eef0f4' } }
+      }
+    }
+  });
+  document.getElementById('leg1').innerHTML = `
+    <span class="leg"><span class="leg-dot" style="background:#1a56db"></span>Con stock</span>
+    <span class="leg"><span class="leg-dot" style="background:#f59e0b"></span>Stock bajo</span>
+    <span class="leg"><span class="leg-dot" style="background:#ef4444"></span>Sin stock</span>`;
 
-                    const catMap = {};
-                    this.products.forEach(p => {
-                        if (!catMap[p.category]) catMap[p.category] = { cost: 0, profit: 0 };
-                        catMap[p.category].cost += (p.stock * p.cost);
-                        catMap[p.category].profit += (p.stock * (p.salePrice - p.cost));
-                    });
+  const ok  = ALL.filter(p=>status(p)==='ok').length;
+  const baj = ALL.filter(p=>status(p)==='bajo').length;
+  const sin = ALL.filter(p=>status(p)==='sin').length;
 
-                    const labels = Object.keys(catMap);
-                    const costData = labels.map(l => catMap[l].cost);
-                    const profitData = labels.map(l => catMap[l].profit);
+  if (chartEstado) chartEstado.destroy();
+  chartEstado = new Chart(document.getElementById('ch2'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Con stock','Stock bajo','Sin stock'],
+      datasets: [{
+        data: [ok, baj, sin],
+        backgroundColor: ['#1a56db44','#f59e0b44','#ef444444'],
+        borderColor: ['#1a56db','#f59e0b','#ef4444'],
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '65%',
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: v => v.label + ': ' + v.raw + ' prods' } }
+      }
+    }
+  });
+  document.getElementById('leg2').innerHTML = `
+    <span class="leg"><span class="leg-dot" style="background:#1a56db"></span>OK (${ok})</span>
+    <span class="leg"><span class="leg-dot" style="background:#f59e0b"></span>Bajo (${baj})</span>
+    <span class="leg"><span class="leg-dot" style="background:#ef4444"></span>Sin stock (${sin})</span>`;
+}
 
-                    if (this.charts.category) this.charts.category.destroy();
-                    if (this.charts.pie) this.charts.pie.destroy();
+/* ── TOOLBAR ─────────────────────────────── */
+function buildToolbar() {
+  const ok  = ALL.filter(p=>status(p)==='ok').length;
+  const baj = ALL.filter(p=>status(p)==='bajo').length;
+  const sin = ALL.filter(p=>status(p)==='sin').length;
+  document.getElementById('toolbar').innerHTML = `
+    <button class="tab-btn on"  onclick="setTab(this,'all')">Todos (${ALL.length})</button>
+    <button class="tab-btn" onclick="setTab(this,'ok')">Con stock (${ok})</button>
+    <button class="tab-btn" onclick="setTab(this,'bajo')">Stock bajo (${baj})</button>
+    <button class="tab-btn" onclick="setTab(this,'sin')">Sin stock (${sin})</button>
+    <button class="tab-btn" onclick="setTab(this,'top')">Más rentables</button>`;
+}
 
-                    this.charts.category = new Chart(canvasBar.getContext('2d'), {
-                        type: 'bar',
-                        data: {
-                            labels: labels,
-                            datasets: [
-                                { label: 'Capital Invertido', data: costData, backgroundColor: '#3f3f46', borderRadius: 4 },
-                                { label: 'Ganancia Potencial', data: profitData, backgroundColor: '#10b981', borderRadius: 4 }
-                            ]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: { legend: { labels: { color: '#a1a1aa' } } },
-                            scales: {
-                                x: { grid: { display: false }, ticks: { color: '#71717a' } },
-                                y: { grid: { color: '#27272a' }, ticks: { color: '#71717a' } }
-                            }
-                        }
-                    });
+/* ── THEAD ───────────────────────────────── */
+function buildThead() {
+  document.getElementById('tHead').innerHTML = `<tr>
+    <th style="width:50px">Img.</th>
+    <th onclick="doSort('PRODUCTO')" id="th-PRODUCTO">Producto / Sabor</th>
+    <th onclick="doSort('margin')" id="th-margin">Margen %</th>
+    <th onclick="doSort('_c')" id="th-_c">Costo</th>
+    <th onclick="doSort('_p')" id="th-_p">Precio venta</th>
+    <th onclick="doSort('netGain')" id="th-netGain">Gan. neta / ud.</th>
+    <th onclick="doSort('_s')" id="th-_s">Stock</th>
+    <th onclick="doSort('potential')" id="th-potential">Gan. potencial</th>
+    <th onclick="doSort('roi')" id="th-roi">ROI %</th>
+    <th>Estado</th>
+    <th>Pago</th>
+  </tr>`;
+}
 
-                    this.charts.pie = new Chart(canvasPie.getContext('2d'), {
-                        type: 'doughnut',
-                        data: {
-                            labels: ['Óptimo', 'Bajo', 'Agotado'],
-                            datasets: [{
-                                data: [
-                                    this.products.filter(p => p.stock > 2).length,
-                                    this.metrics.lowStock,
-                                    this.metrics.outOfStock
-                                ],
-                                backgroundColor: ['#10b981', '#f59e0b', '#f43f5e'],
-                                borderWidth: 0
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: { legend: { position: 'bottom', labels: { color: '#a1a1aa', padding: 20 } } },
-                            cutout: '75%'
-                        }
-                    });
-                }
-            }
-        }
-    </script>
+/* ── FILTERS ─────────────────────────────── */
+function applyFilters() {
+  let d = [...ALL];
+  if (searchQ) d = d.filter(p =>
+    (p['PRODUCTO']+' '+p['SABOR']+' '+(p['CATEGORÍA']||'')).toLowerCase().includes(searchQ));
+  if (catQ) d = d.filter(p => p['CATEGORÍA'] === catQ);
+  if (activeTab === 'ok')   d = d.filter(p => status(p)==='ok');
+  else if (activeTab === 'bajo') d = d.filter(p => status(p)==='bajo');
+  else if (activeTab === 'sin')  d = d.filter(p => status(p)==='sin');
+  else if (activeTab === 'top')  d = d.filter(p => p.margin >= 40);
+  d.sort((a,b) => (a[sortKey] > b[sortKey] ? 1 : -1) * sortDir);
+  filtered = d;
+}
+
+/* ── TABLE ───────────────────────────────── */
+function renderTable() {
+  const barC = m => m>=50?'#0e7c3a':m>=35?'#1a56db':m>=20?'#92530a':'#b91c1c';
+  const statusBadge = p => {
+    const s = status(p);
+    if (s==='sin')  return '<span class="badge bg-red">Sin stock</span>';
+    if (s==='bajo') return '<span class="badge bg-amber">Stock bajo</span>';
+    return '<span class="badge bg-green">Disponible</span>';
+  };
+
+  if (!filtered.length) {
+    document.getElementById('tBody').innerHTML =
+      '<tr><td colspan="11" style="text-align:center;padding:32px;color:var(--gray-400);font-size:13px">Sin resultados para este filtro</td></tr>';
+    return;
+  }
+
+  document.getElementById('tBody').innerHTML = filtered.map(p => `
+    <tr>
+      <td>${p['IMAGEN_URL']
+        ? `<img class="img-th" src="${p['IMAGEN_URL']}" alt="${p['PRODUCTO']}" loading="lazy" onerror="this.outerHTML='<div class=img-ph><i class=ti ti-package></i></div>'">`
+        : '<div class="img-ph"><i class="ti ti-package"></i></div>'}</td>
+      <td>
+        <div class="prod-name">${p['PRODUCTO']||''}</div>
+        <div class="prod-flavor">${p['SABOR']||''}${p['CATEGORÍA']?' · '+p['CATEGORÍA']:''}</div>
+      </td>
+      <td>
+        <div class="bar-wrap">
+          <span class="mono-val" style="min-width:34px;color:${barC(p.margin)};font-weight:600">${Math.round(p.margin)}%</span>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.min(Math.max(p.margin,0),100)}%;background:${barC(p.margin)}"></div></div>
+        </div>
+      </td>
+      <td class="mono-val">${$(p._c)}</td>
+      <td class="mono-val" style="font-weight:600">${$(p._p)}</td>
+      <td class="mono-val" style="color:var(--green);font-weight:600">${$(p.netGain)}</td>
+      <td class="mono-val" style="color:${p._s===0?'var(--red)':p._s<=3?'var(--amber)':'var(--gray-900)'};font-weight:600">${p._s}</td>
+      <td class="mono-val" style="color:var(--blue);font-weight:600">${$(p.potential)}</td>
+      <td class="mono-val">${Math.round(p.roi)}%</td>
+      <td>${statusBadge(p)}</td>
+      <td>${p['mp_link']
+        ? `<a href="${p['mp_link']}" target="_blank" class="badge bg-blue" style="text-decoration:none"><i class="ti ti-external-link" style="font-size:11px"></i> MP</a>`
+        : '<span style="color:var(--gray-300)">—</span>'}</td>
+    </tr>`).join('');
+
+  document.querySelectorAll('thead th[id^="th-"]').forEach(th => {
+    th.className = '';
+    const k = th.id.replace('th-','');
+    if (k === sortKey) th.className = sortDir === -1 ? 'desc' : 'asc';
+  });
+}
+
+/* ── RANKINGS ────────────────────────────── */
+function renderRankings() {
+  const top5 = [...ALL].sort((a,b)=>b.margin-a.margin).slice(0,5);
+  const rep  = [...ALL].filter(p=>status(p)!=='ok').sort((a,b)=>a._s-b._s).slice(0,5);
+
+  document.getElementById('bottomGrid').innerHTML = `
+    <div class="rank-panel">
+      <div class="sec-title">Top 5 — Más rentables por margen</div>
+      ${top5.map((p,i) => `
+        <div class="rank-row">
+          <div class="rank-n">${i+1}</div>
+          <div class="rank-info">
+            <div class="rank-name">${p['PRODUCTO']} ${p['SABOR']}</div>
+            <div class="rank-hint">ROI ${Math.round(p.roi)}% · Gan. ${$(p.netGain)}/ud · Stock ${p._s}</div>
+          </div>
+          <div class="rank-val" style="color:var(--green)">${Math.round(p.margin)}%</div>
+        </div>`).join('')}
+    </div>
+    <div class="rank-panel">
+      <div class="sec-title">Reponer urgente — Stock crítico</div>
+      ${rep.length ? rep.map((p,i) => `
+        <div class="rank-row">
+          <div class="rank-n">${i+1}</div>
+          <div class="rank-info">
+            <div class="rank-name">${p['PRODUCTO']} ${p['SABOR']}</div>
+            <div class="rank-hint">Gan. potencial bloqueada: ${$(p.potential)}</div>
+          </div>
+          <div class="rank-val" style="color:${p._s===0?'var(--red)':'var(--amber)'}">${p._s===0?'AGOTADO':p._s+' ud.'}</div>
+        </div>`).join('')
+      : '<div style="text-align:center;padding:20px;font-size:12px;color:var(--gray-400)"><i class="ti ti-circle-check" style="font-size:22px;display:block;margin-bottom:6px;color:var(--green-md)"></i>Todo el inventario está en orden</div>'}
+    </div>`;
+}
+
+/* ── EVENTS ──────────────────────────────── */
+function setTab(el, t) {
+  activeTab = t;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  applyFilters(); renderTable();
+}
+function doSearch(v) { searchQ = v.toLowerCase(); applyFilters(); renderTable(); }
+function setCat(v)   { catQ = v; applyFilters(); renderTable(); }
+function doSort(k) {
+  if (sortKey === k) sortDir *= -1; else { sortKey = k; sortDir = -1; }
+  applyFilters(); renderTable();
+}
+
+/* ── EXPORT CSV ──────────────────────────── */
+function exportCSV() {
+  if (!ALL.length) return alert('No hay datos para exportar.');
+  const cols = [
+    ['PRODUCTO','Producto'],['SABOR','Sabor'],['CATEGORÍA','Categoría'],
+    ['_c','Costo'],['_p','Precio Venta'],['_s','Stock'],['ESTADO','Estado'],
+    ['margin','Margen %'],['netGain','Gan. neta/ud'],['invVal','Valor inventario'],
+    ['potential','Gan. potencial'],['roi','ROI %']
+  ];
+  const hdr = cols.map(c=>c[1]).join(',');
+  const rows = ALL.map(p => cols.map(([k]) => {
+    let v = p[k] !== undefined ? p[k] : '';
+    if (['margin','netGain','invVal','potential','roi','_c','_p','_s'].includes(k)) v = Math.round(v);
+    return '"'+String(v).replace(/"/g,'""')+'"';
+  }).join(','));
+  const csv = '\uFEFF' + [hdr, ...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'vapedash_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+
+/* ── INIT ────────────────────────────────── */
+loadData();
+setInterval(loadData, 60000);
+</script>
 </body>
 </html>
